@@ -16,6 +16,13 @@ VitreoSketch is a small static web portal for people with vitreous floaters who 
   - random drift
   - camera-based eye tracking via MediaPipe FaceMesh
 - runs as a plain static site, so it is easy to host on GitHub Pages
+- includes built-in UI localization for:
+  - English
+  - Russian
+  - Spanish
+  - Portuguese
+  - Chinese
+  - Arabic
 
 ## Notes on movement logic
 

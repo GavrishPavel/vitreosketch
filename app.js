@@ -4,6 +4,15 @@ const floaterLayer = document.getElementById('floaterLayer');
 const drawLayer = document.getElementById('drawLayer');
 const cameraFeed = document.getElementById('cameraFeed');
 
+const languageMeta = {
+  en: { label: 'English', title: 'VitreoSketch — Floater Visualizer' },
+  ru: { label: 'Русский', title: 'VitreoSketch — Визуализатор помутнений' },
+  es: { label: 'Español', title: 'VitreoSketch — Visualizador de miodesopsias' },
+  pt: { label: 'Português', title: 'VitreoSketch — Visualizador de moscas volantes' },
+  zh: { label: '中文', title: 'VitreoSketch — 飞蚊症可视化工具' },
+  ar: { label: 'العربية', title: 'VitreoSketch — أداة تصور عوائم العين' }
+};
+
 const translations = {
   en: {
     title: 'Floater visualizer & editor',
@@ -110,6 +119,218 @@ const translations = {
     exitFocusMode: 'Выйти из режима',
     fullscreen: 'На весь экран',
     stageHint: 'Совет: кликни по помутнению или рисунку, чтобы редактировать его, перетаскивай его мышкой или включай слежение за глазами на HTTPS / GitHub Pages.'
+  },
+  es: {
+    title: 'Visualizador y editor de miodesopsias',
+    lead: 'Compón una simulación MVP de formas comunes de miodesopsias vítreas y anímalas con una deriva suave o con seguimiento ocular mediante cámara.',
+    addTitle: '1. Añadir miodesopsias',
+    presetDot: 'Grupo de puntos',
+    presetRing: 'Anillo',
+    presetThread: 'Hilo',
+    presetCobweb: 'Telaraña',
+    presetSmudge: 'Mancha',
+    presetCloud: 'Nube',
+    addHint: 'Basado en descripciones frecuentes: puntos, anillos/anillo de Weiss, hebras filamentosas, telarañas, manchas turbias y nubes difusas.',
+    drawTitle: '2. Dibuja la tuya',
+    brushSize: 'Tamaño del pincel',
+    brushAlpha: 'Opacidad del trazo',
+    enableDrawing: 'Activar dibujo',
+    drawingEnabled: 'Dibujo activado',
+    clearDrawings: 'Borrar dibujos',
+    selectionTitle: '3. Miodesopsia seleccionada',
+    selectionNone: 'Nada seleccionado',
+    selectionActive: 'Seleccionado',
+    selectionHint: 'Haz clic en una miodesopsia o dibujo para editarlo. Arrastra para recolocarlo. Ctrl/Cmd+C copia las miodesopsias y Delete elimina el objeto seleccionado.',
+    contrast: 'Contraste',
+    blur: 'Desenfoque',
+    structure: 'Estructura',
+    scale: 'Escala',
+    rotation: 'Rotación',
+    duplicateSelected: 'Duplicar',
+    deleteSelected: 'Eliminar seleccionado',
+    motionTitle: '4. Movimiento',
+    randomDrift: 'Deriva aleatoria',
+    eyeTracking: 'Seguimiento ocular',
+    motionIntensity: 'Intensidad del movimiento',
+    startMotion: 'Iniciar movimiento',
+    stopMotion: 'Detener movimiento',
+    enableCamera: 'Activar cámara',
+    cameraOff: 'Cámara desactivada',
+    cameraNeedsHttps: 'La cámara necesita HTTPS o localhost',
+    cameraActive: 'Cámara activa',
+    cameraPermissionFailed: 'No se pudo obtener permiso para la cámara',
+    sceneTitle: '5. Escena',
+    sceneSunny: 'Cielo soleado',
+    sceneBeach: 'Playa de arena blanca',
+    sceneSnowy: 'Día nevado',
+    sceneCloudy: 'Cielo nublado',
+    scenePlain: 'Sin fondo',
+    resetScene: 'Restablecer escena',
+    loadStarterSet: 'Cargar conjunto inicial',
+    preview: 'Vista previa',
+    focusMode: 'Modo enfoque',
+    exitFocusMode: 'Salir del modo enfoque',
+    fullscreen: 'Pantalla completa',
+    stageHint: 'Consejo: haz clic en una miodesopsia o dibujo para editarlo, arrástralo o usa seguimiento ocular en HTTPS / GitHub Pages.'
+  },
+  pt: {
+    title: 'Visualizador e editor de moscas volantes',
+    lead: 'Monte uma simulação MVP de formas comuns de moscas volantes vítreas e depois anime tudo com deriva suave ou rastreamento ocular pela câmera.',
+    addTitle: '1. Adicionar moscas volantes',
+    presetDot: 'Grupo de pontos',
+    presetRing: 'Anel',
+    presetThread: 'Filamento',
+    presetCobweb: 'Teia',
+    presetSmudge: 'Mancha',
+    presetCloud: 'Nuvem',
+    addHint: 'Baseado em descrições comuns: pontos, anéis/anel de Weiss, filamentos, teias, manchas turvas e nuvens difusas.',
+    drawTitle: '2. Desenhe a sua',
+    brushSize: 'Tamanho do pincel',
+    brushAlpha: 'Opacidade do traço',
+    enableDrawing: 'Ativar desenho',
+    drawingEnabled: 'Desenho ativado',
+    clearDrawings: 'Limpar desenhos',
+    selectionTitle: '3. Mosca volante selecionada',
+    selectionNone: 'Nada selecionado',
+    selectionActive: 'Selecionado',
+    selectionHint: 'Clique em uma mosca volante ou desenho para editar. Arraste para reposicionar. Ctrl/Cmd+C copia as moscas volantes e Delete remove o objeto selecionado.',
+    contrast: 'Contraste',
+    blur: 'Desfoque',
+    structure: 'Estrutura',
+    scale: 'Escala',
+    rotation: 'Rotação',
+    duplicateSelected: 'Duplicar',
+    deleteSelected: 'Excluir selecionado',
+    motionTitle: '4. Movimento',
+    randomDrift: 'Deriva aleatória',
+    eyeTracking: 'Rastreamento ocular',
+    motionIntensity: 'Intensidade do movimento',
+    startMotion: 'Iniciar movimento',
+    stopMotion: 'Parar movimento',
+    enableCamera: 'Ativar câmera',
+    cameraOff: 'Câmera desligada',
+    cameraNeedsHttps: 'A câmera precisa de HTTPS ou localhost',
+    cameraActive: 'Câmera ativa',
+    cameraPermissionFailed: 'Falha ao obter permissão da câmera',
+    sceneTitle: '5. Cena',
+    sceneSunny: 'Céu ensolarado',
+    sceneBeach: 'Praia de areia branca',
+    sceneSnowy: 'Dia nevado',
+    sceneCloudy: 'Céu nublado',
+    scenePlain: 'Sem fundo',
+    resetScene: 'Redefinir cena',
+    loadStarterSet: 'Carregar conjunto inicial',
+    preview: 'Pré-visualização',
+    focusMode: 'Modo foco',
+    exitFocusMode: 'Sair do modo foco',
+    fullscreen: 'Tela cheia',
+    stageHint: 'Dica: clique em uma mosca volante ou desenho para editar, arraste pela cena ou use rastreamento ocular em HTTPS / GitHub Pages.'
+  },
+  zh: {
+    title: '飞蚊症可视化与编辑器',
+    lead: '创建一个常见玻璃体飞蚊形态的 MVP 模拟，并通过轻微漂移或基于摄像头的眼动追踪让它动起来。',
+    addTitle: '1. 添加飞蚊',
+    presetDot: '点状簇',
+    presetRing: '环状',
+    presetThread: '丝状',
+    presetCobweb: '网状',
+    presetSmudge: '污斑',
+    presetCloud: '云雾',
+    addHint: '基于常见描述：点状、环状/魏斯环、丝状条纹、蛛网状、模糊污斑和弥散云雾。',
+    drawTitle: '2. 自己绘制',
+    brushSize: '画笔大小',
+    brushAlpha: '笔迹透明度',
+    enableDrawing: '启用绘制',
+    drawingEnabled: '绘制已启用',
+    clearDrawings: '清除绘图',
+    selectionTitle: '3. 已选飞蚊',
+    selectionNone: '未选择任何对象',
+    selectionActive: '已选择',
+    selectionHint: '点击飞蚊或绘图即可编辑，拖动可重新定位。Ctrl/Cmd+C 复制飞蚊，Delete 删除当前选中的对象。',
+    contrast: '对比度',
+    blur: '模糊',
+    structure: '结构',
+    scale: '缩放',
+    rotation: '旋转',
+    duplicateSelected: '复制',
+    deleteSelected: '删除所选',
+    motionTitle: '4. 运动',
+    randomDrift: '随机漂移',
+    eyeTracking: '眼动追踪',
+    motionIntensity: '运动强度',
+    startMotion: '开始运动',
+    stopMotion: '停止运动',
+    enableCamera: '启用摄像头',
+    cameraOff: '摄像头已关闭',
+    cameraNeedsHttps: '摄像头需要 HTTPS 或 localhost',
+    cameraActive: '摄像头已开启',
+    cameraPermissionFailed: '无法获取摄像头权限',
+    sceneTitle: '5. 场景',
+    sceneSunny: '晴朗天空',
+    sceneBeach: '白沙海滩',
+    sceneSnowy: '雪天',
+    sceneCloudy: '多云天空',
+    scenePlain: '无背景',
+    resetScene: '重置场景',
+    loadStarterSet: '加载初始组合',
+    preview: '预览',
+    focusMode: '专注模式',
+    exitFocusMode: '退出专注模式',
+    fullscreen: '全屏',
+    stageHint: '提示：点击飞蚊或绘图进行编辑，可拖动位置，或在 HTTPS / GitHub Pages 上启用眼动追踪。'
+  },
+  ar: {
+    title: 'أداة تصور وتحرير عوائم العين',
+    lead: 'أنشئ محاكاة أولية لأشكال عوائم الجسم الزجاجي الشائعة، ثم حرّكها بانجراف لطيف أو بتتبع حركة العين عبر الكاميرا.',
+    addTitle: '1. أضف العوائم',
+    presetDot: 'مجموعة نقاط',
+    presetRing: 'حلقة',
+    presetThread: 'خيط',
+    presetCobweb: 'شبكة',
+    presetSmudge: 'لطخة',
+    presetCloud: 'سحابة',
+    addHint: 'مبني على أوصاف شائعة: نقاط، حلقات/حلقة فايس، خيوط رفيعة، شبكات، لطخات ضبابية، وعوائم سحابية منتشرة.',
+    drawTitle: '2. ارسم الشكل بنفسك',
+    brushSize: 'حجم الفرشاة',
+    brushAlpha: 'شفافية الخط',
+    enableDrawing: 'تفعيل الرسم',
+    drawingEnabled: 'تم تفعيل الرسم',
+    clearDrawings: 'مسح الرسومات',
+    selectionTitle: '3. العائمة المحددة',
+    selectionNone: 'لا يوجد تحديد',
+    selectionActive: 'محدد',
+    selectionHint: 'انقر على عائمة أو رسم لتعديله. اسحب لإعادة التموضع. Ctrl/Cmd+C ينسخ العوائم وDelete يحذف العنصر المحدد.',
+    contrast: 'التباين',
+    blur: 'التمويه',
+    structure: 'البنية',
+    scale: 'المقياس',
+    rotation: 'الدوران',
+    duplicateSelected: 'نسخ',
+    deleteSelected: 'حذف المحدد',
+    motionTitle: '4. الحركة',
+    randomDrift: 'انجراف عشوائي',
+    eyeTracking: 'تتبع العين',
+    motionIntensity: 'شدة الحركة',
+    startMotion: 'بدء الحركة',
+    stopMotion: 'إيقاف الحركة',
+    enableCamera: 'تفعيل الكاميرا',
+    cameraOff: 'الكاميرا متوقفة',
+    cameraNeedsHttps: 'تحتاج الكاميرا إلى HTTPS أو localhost',
+    cameraActive: 'الكاميرا مفعلة',
+    cameraPermissionFailed: 'فشل الحصول على إذن الكاميرا',
+    sceneTitle: '5. المشهد',
+    sceneSunny: 'سماء مشمسة',
+    sceneBeach: 'شاطئ برمال بيضاء',
+    sceneSnowy: 'يوم ثلجي',
+    sceneCloudy: 'سماء غائمة',
+    scenePlain: 'بدون خلفية',
+    resetScene: 'إعادة ضبط المشهد',
+    loadStarterSet: 'تحميل مجموعة البداية',
+    preview: 'المعاينة',
+    focusMode: 'وضع التركيز',
+    exitFocusMode: 'الخروج من وضع التركيز',
+    fullscreen: 'ملء الشاشة',
+    stageHint: 'نصيحة: انقر على العائمة أو الرسم لتعديله، واسحبه داخل المشهد، أو استخدم تتبع العين على HTTPS / GitHub Pages.'
   }
 };
 
@@ -169,11 +390,10 @@ const controls = {
   stopMotion: document.getElementById('stopMotion'),
   startCamera: document.getElementById('startCamera'),
   cameraStatus: document.getElementById('cameraStatus'),
-  langRu: document.getElementById('langRu'),
-  langEn: document.getElementById('langEn'),
+  languageSelect: document.getElementById('languageSelect'),
   previewMode: document.getElementById('previewMode'),
   fullscreenMode: document.getElementById('fullscreenMode'),
-  selectionStatus: document.getElementById('selectionStatus'),
+  selectionStatus: document.getElementById('selectionStatus') ,
   duplicateSelected: document.getElementById('duplicateSelected'),
   deleteSelected: document.getElementById('deleteSelected')
 };
@@ -184,6 +404,7 @@ function stageRect() { return stage.getBoundingClientRect(); }
 function t(key) { return translations[state.language][key] || translations.en[key] || key; }
 function selectedItem() { return state.selection.type === 'item' ? state.items.find((item) => item.id === state.selection.id) || null : null; }
 function selectedDrawing() { return state.selection.type === 'drawing' ? state.drawings.find((drawing) => drawing.id === state.selection.id) || null : null; }
+function isRtlLanguage(lang) { return lang === 'ar'; }
 
 function makeItem(type, x = rand(20, 80), y = rand(20, 80), overrides = {}) {
   return {
@@ -207,17 +428,25 @@ function setViewBox() {
   drawLayer.setAttribute('viewBox', `0 0 ${Math.max(1, rect.width)} ${Math.max(1, rect.height)}`);
 }
 
+function populateLanguageSelect() {
+  controls.languageSelect.innerHTML = Object.entries(languageMeta)
+    .map(([code, meta]) => `<option value="${code}">${meta.label}</option>`)
+    .join('');
+  controls.languageSelect.value = state.language;
+}
+
 function applyTranslations() {
   document.documentElement.lang = state.language;
-  document.title = state.language === 'ru' ? 'VitreoSketch — Визуализатор помутнений' : 'VitreoSketch — Floater Visualizer';
+  document.documentElement.dir = isRtlLanguage(state.language) ? 'rtl' : 'ltr';
+  document.body.classList.toggle('rtl', isRtlLanguage(state.language));
+  document.title = languageMeta[state.language]?.title || languageMeta.en.title;
   document.querySelectorAll('[data-i18n]').forEach((node) => {
     node.textContent = t(node.dataset.i18n);
   });
   controls.drawToggle.textContent = state.drawingEnabled ? t('drawingEnabled') : t('enableDrawing');
   controls.previewMode.textContent = state.previewOnly ? t('exitFocusMode') : t('focusMode');
   controls.cameraStatus.textContent = state.eye.active ? t('cameraActive') : t('cameraOff');
-  controls.langRu.classList.toggle('active', state.language === 'ru');
-  controls.langEn.classList.toggle('active', state.language === 'en');
+  controls.languageSelect.value = state.language;
   updateSelectionUi();
 }
 
@@ -320,7 +549,15 @@ function normalizeDrawing(drawing) {
 }
 
 function drawingLabel() {
-  return state.language === 'ru' ? 'Рисунок' : 'Drawing';
+  const labels = {
+    en: 'Drawing',
+    ru: 'Рисунок',
+    es: 'Dibujo',
+    pt: 'Desenho',
+    zh: '绘图',
+    ar: 'رسم'
+  };
+  return labels[state.language] || labels.en;
 }
 
 function renderItems() {
@@ -828,8 +1065,10 @@ controls.stopMotion.addEventListener('click', () => {
 controls.startCamera.addEventListener('click', enableCamera);
 controls.duplicateSelected.addEventListener('click', () => { copySelected(); pasteSelected(); });
 controls.deleteSelected.addEventListener('click', deleteSelected);
-controls.langRu.addEventListener('click', () => { state.language = 'ru'; applyTranslations(); });
-controls.langEn.addEventListener('click', () => { state.language = 'en'; applyTranslations(); });
+controls.languageSelect.addEventListener('change', (event) => {
+  state.language = event.target.value;
+  applyTranslations();
+});
 controls.previewMode.addEventListener('click', () => {
   state.previewOnly = !state.previewOnly;
   document.body.classList.toggle('preview-only', state.previewOnly);
@@ -863,11 +1102,12 @@ window.addEventListener('keydown', (event) => {
     pasteSelected();
     event.preventDefault();
   }
-  if ((event.key === 'Delete' || event.key === 'Backspace') && !['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName)) {
+  if ((event.key === 'Delete' || event.key === 'Backspace') && !['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName)) {
     deleteSelected();
   }
 });
 
+populateLanguageSelect();
 setViewBox();
 pickRandomTarget();
 renderItems();
