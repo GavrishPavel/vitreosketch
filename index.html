@@ -42,18 +42,27 @@
           <label><span data-i18n="brushSize">Brush size</span> <input id="brushSize" type="range" min="1" max="16" value="4" /></label>
           <label><span data-i18n="brushAlpha">Stroke alpha</span> <input id="brushAlpha" type="range" min="0.05" max="0.8" step="0.05" value="0.25" /></label>
         </div>
-        <div class="toggle-row">
+        <div class="toggle-row wrap">
           <button id="drawToggle" data-i18n="enableDrawing">Enable drawing</button>
           <button id="clearDrawings" class="ghost" data-i18n="clearDrawings">Clear drawings</button>
         </div>
       </section>
 
       <section>
-        <h2 data-i18n="appearanceTitle">3. Appearance</h2>
-        <label><span data-i18n="contrast">Contrast</span> <input id="contrast" type="range" min="0.15" max="1" step="0.05" value="0.55" /></label>
-        <label><span data-i18n="blur">Blur</span> <input id="blur" type="range" min="0" max="24" step="1" value="9" /></label>
-        <label><span data-i18n="structure">Structure</span> <input id="structure" type="range" min="0" max="1" step="0.05" value="0.45" /></label>
-        <label><span data-i18n="scale">Scale</span> <input id="scale" type="range" min="0.6" max="1.8" step="0.05" value="1" /></label>
+        <div class="section-head">
+          <h2 data-i18n="selectionTitle">3. Selected floater</h2>
+          <span id="selectionStatus" class="hint" data-i18n="selectionNone">Nothing selected</span>
+        </div>
+        <label><span data-i18n="contrast">Contrast</span> <input id="itemContrast" type="range" min="0.15" max="1" step="0.05" value="0.55" /></label>
+        <label><span data-i18n="blur">Blur</span> <input id="itemBlur" type="range" min="0" max="24" step="1" value="9" /></label>
+        <label><span data-i18n="structure">Structure</span> <input id="itemStructure" type="range" min="0" max="1" step="0.05" value="0.45" /></label>
+        <label><span data-i18n="scale">Scale</span> <input id="itemScale" type="range" min="0.5" max="2.2" step="0.05" value="1" /></label>
+        <label><span data-i18n="rotation">Rotation</span> <input id="itemRotation" type="range" min="-180" max="180" step="1" value="0" /></label>
+        <div class="toggle-row wrap">
+          <button id="duplicateSelected" class="ghost" data-i18n="duplicateSelected">Duplicate</button>
+          <button id="deleteSelected" class="ghost danger" data-i18n="deleteSelected">Delete selected</button>
+        </div>
+        <p class="hint" data-i18n="selectionHint">Click a floater to edit it. Ctrl/Cmd+C copies it, Ctrl/Cmd+V pastes it.</p>
       </section>
 
       <section>
@@ -63,15 +72,25 @@
           <label><input type="radio" name="motionMode" value="eye" /> <span data-i18n="eyeTracking">Eye tracking</span></label>
         </div>
         <label><span data-i18n="motionIntensity">Motion intensity</span> <input id="motionIntensity" type="range" min="0.2" max="1.5" step="0.05" value="0.8" /></label>
-        <div class="toggle-row">
+        <div class="toggle-row wrap">
+          <button id="startMotion" data-i18n="startMotion">Start movement</button>
+          <button id="stopMotion" class="ghost" data-i18n="stopMotion">Stop movement</button>
+        </div>
+        <div class="toggle-row wrap">
           <button id="startCamera" class="ghost" data-i18n="enableCamera">Enable camera</button>
           <span id="cameraStatus" class="hint" data-i18n="cameraOff">Camera off</span>
         </div>
       </section>
 
       <section>
-        <h2 data-i18n="sceneTitle">Scene</h2>
-        <div class="toggle-row">
+        <h2 data-i18n="sceneTitle">5. Scene</h2>
+        <div class="preset-grid scene-grid">
+          <button data-scene="sunny" data-i18n="sceneSunny">Sunny sky</button>
+          <button data-scene="beach" data-i18n="sceneBeach">White sand beach</button>
+          <button data-scene="snowy" data-i18n="sceneSnowy">Snowy day</button>
+          <button data-scene="cloudy" data-i18n="sceneCloudy">Cloudy sky</button>
+        </div>
+        <div class="toggle-row wrap">
           <button id="resetScene" class="ghost" data-i18n="resetScene">Reset scene</button>
           <button id="demoScene" data-i18n="loadStarterSet">Load starter set</button>
         </div>
@@ -86,10 +105,13 @@
           <button id="fullscreenMode" class="ghost small" data-i18n="fullscreen">Fullscreen</button>
         </div>
       </div>
-      <div class="stage-subhint hint" data-i18n="stageHint">Tip: draw on the stage, then switch to eye tracking on HTTPS / GitHub Pages.</div>
-      <div id="stage" class="stage">
-        <div id="floaterLayer" class="floater-layer"></div>
-        <svg id="drawLayer" class="draw-layer"></svg>
+      <div class="stage-subhint hint" data-i18n="stageHint">Tip: click a floater to edit it, drag it around, or use eye tracking on HTTPS / GitHub Pages.</div>
+      <div id="stage" class="stage scene-sunny">
+        <div class="scene-overlay"></div>
+        <div id="motionLayer" class="motion-layer">
+          <div id="floaterLayer" class="floater-layer"></div>
+          <svg id="drawLayer" class="draw-layer"></svg>
+        </div>
       </div>
       <video id="cameraFeed" playsinline autoplay muted></video>
     </main>
