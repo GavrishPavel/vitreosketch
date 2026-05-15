@@ -28,6 +28,16 @@ button, input { font: inherit; }
   overflow-y: auto;
 }
 .controls section { margin-top: 22px; }
+.top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.lang-switch {
+  display: flex;
+  gap: 6px;
+}
 .eyebrow {
   text-transform: uppercase;
   letter-spacing: .14em;
@@ -60,6 +70,11 @@ button.ghost {
   color: var(--text);
   border: 1px solid var(--line);
 }
+button.small {
+  padding: 8px 10px;
+  font-size: 12px;
+  border-radius: 10px;
+}
 button.active { background: #344054; }
 .preset-grid, .mode-grid {
   display: grid;
@@ -85,6 +100,20 @@ button.active { background: #344054; }
   gap: 16px;
   color: var(--muted);
   font-size: 14px;
+}
+.toolbar-actions {
+  display: flex;
+  gap: 8px;
+}
+.stage-subhint {
+  margin-top: -4px;
+}
+.stage-wrap.preview-only .panel,
+body.preview-only .panel {
+  display: none;
+}
+body.preview-only .app-shell {
+  grid-template-columns: 1fr;
 }
 .stage {
   position: relative;
@@ -119,6 +148,13 @@ button.active { background: #344054; }
   transform-origin: center;
   opacity: 0.85;
   mix-blend-mode: multiply;
+  cursor: grab;
+  pointer-events: auto;
+  touch-action: none;
+}
+.floater-item.dragging {
+  cursor: grabbing;
+  z-index: 20;
 }
 .floater-svg {
   overflow: visible;
@@ -128,4 +164,5 @@ button.active { background: #344054; }
   .app-shell { grid-template-columns: 1fr; }
   .panel { border-right: 0; border-bottom: 1px solid var(--line); }
   .stage { min-height: 60vh; }
+  .top-row, .stage-toolbar { flex-wrap: wrap; }
 }

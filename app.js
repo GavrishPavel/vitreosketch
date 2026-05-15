@@ -3,6 +3,87 @@ const floaterLayer = document.getElementById('floaterLayer');
 const drawLayer = document.getElementById('drawLayer');
 const cameraFeed = document.getElementById('cameraFeed');
 
+const translations = {
+  en: {
+    title: 'Floater visualizer & editor',
+    lead: 'Compose an MVP simulation of common vitreous floater shapes, then animate them with gentle drift or camera-based eye tracking.',
+    addTitle: '1. Add floaters',
+    presetDot: 'Dot cluster',
+    presetRing: 'Ring',
+    presetThread: 'Thread',
+    presetCobweb: 'Cobweb',
+    presetSmudge: 'Smudge',
+    addHint: 'Based on commonly described forms: spots, rings/Weiss rings, thread-like strands, cobwebs, and cloudy smudges.',
+    drawTitle: '2. Draw your own',
+    brushSize: 'Brush size',
+    brushAlpha: 'Stroke alpha',
+    enableDrawing: 'Enable drawing',
+    drawingEnabled: 'Drawing enabled',
+    clearDrawings: 'Clear drawings',
+    appearanceTitle: '3. Appearance',
+    contrast: 'Contrast',
+    blur: 'Blur',
+    structure: 'Structure',
+    scale: 'Scale',
+    motionTitle: '4. Motion',
+    randomDrift: 'Random drift',
+    eyeTracking: 'Eye tracking',
+    motionIntensity: 'Motion intensity',
+    enableCamera: 'Enable camera',
+    cameraOff: 'Camera off',
+    cameraNeedsHttps: 'Camera needs HTTPS or localhost',
+    cameraActive: 'Camera active',
+    cameraPermissionFailed: 'Camera permission failed',
+    sceneTitle: 'Scene',
+    resetScene: 'Reset scene',
+    loadStarterSet: 'Load starter set',
+    preview: 'Preview',
+    focusMode: 'Focus mode',
+    exitFocusMode: 'Exit focus mode',
+    fullscreen: 'Fullscreen',
+    stageHint: 'Tip: draw on the stage, then switch to eye tracking on HTTPS / GitHub Pages.'
+  },
+  ru: {
+    title: 'Визуализатор и редактор помутнений',
+    lead: 'Соберите свою сцену с типичными помутнениями стекловидного тела и запустите движение: случайный дрейф или слежение по взгляду через камеру.',
+    addTitle: '1. Добавьте помутнения',
+    presetDot: 'Точки',
+    presetRing: 'Кольцо',
+    presetThread: 'Нить',
+    presetCobweb: 'Паутина',
+    presetSmudge: 'Пятно',
+    addHint: 'Основано на частых описаниях: точки, кольца/кольцо Вейса, нитевидные полосы, паутинка и мутные пятна.',
+    drawTitle: '2. Нарисуйте своё',
+    brushSize: 'Размер кисти',
+    brushAlpha: 'Прозрачность штриха',
+    enableDrawing: 'Включить рисование',
+    drawingEnabled: 'Рисование включено',
+    clearDrawings: 'Очистить рисунок',
+    appearanceTitle: '3. Внешний вид',
+    contrast: 'Контрастность',
+    blur: 'Размытие',
+    structure: 'Структура',
+    scale: 'Масштаб',
+    motionTitle: '4. Движение',
+    randomDrift: 'Случайный дрейф',
+    eyeTracking: 'Отслеживание взгляда',
+    motionIntensity: 'Интенсивность движения',
+    enableCamera: 'Включить камеру',
+    cameraOff: 'Камера выключена',
+    cameraNeedsHttps: 'Для камеры нужен HTTPS или localhost',
+    cameraActive: 'Камера включена',
+    cameraPermissionFailed: 'Не удалось получить доступ к камере',
+    sceneTitle: 'Сцена',
+    resetScene: 'Сбросить сцену',
+    loadStarterSet: 'Загрузить набор',
+    preview: 'Предпросмотр',
+    focusMode: 'Режим просмотра',
+    exitFocusMode: 'Выйти из режима',
+    fullscreen: 'На весь экран',
+    stageHint: 'Совет: рисуйте прямо на сцене, а потом включайте слежение за глазами на HTTPS / GitHub Pages.'
+  }
+};
+
 const state = {
   items: [],
   drawingEnabled: false,
@@ -26,6 +107,14 @@ const state = {
     smoothFactor: 0.025,
     faceMesh: null,
     camera: null
+  },
+  language: 'en',
+  previewOnly: false,
+  dragging: {
+    id: null,
+    pointerId: null,
+    dx: 0,
+    dy: 0
   }
 };
 
@@ -44,12 +133,32 @@ const controls = {
   resetScene: document.getElementById('resetScene'),
   demoScene: document.getElementById('demoScene'),
   startCamera: document.getElementById('startCamera'),
-  cameraStatus: document.getElementById('cameraStatus')
+  cameraStatus: document.getElementById('cameraStatus'),
+  langRu: document.getElementById('langRu'),
+  langEn: document.getElementById('langEn'),
+  previewMode: document.getElementById('previewMode'),
+  fullscreenMode: document.getElementById('fullscreenMode')
 };
 
 function rand(min, max) { return Math.random() * (max - min) + min; }
 function uid() { return `${Date.now()}-${Math.random().toString(16).slice(2)}`; }
 function stageRect() { return stage.getBoundingClientRect(); }
+function t(key) { return translations[state.language][key] || translations.en[key] || key; }
+
+function applyTranslations() {
+  document.documentElement.lang = state.language;
+  document.title = state.language === 'ru' ? 'VitreoSketch — Визуализатор помутнений' : 'VitreoSketch — Floater Visualizer';
+  document.querySelectorAll('[data-i18n]').forEach((node) => {
+    const key = node.dataset.i18n;
+    node.textContent = t(key);
+  });
+  controls.drawToggle.textContent = state.drawingEnabled ? t('drawingEnabled') : t('enableDrawing');
+  controls.startCamera.textContent = t('enableCamera');
+  controls.previewMode.textContent = state.previewOnly ? t('exitFocusMode') : t('focusMode');
+  controls.cameraStatus.textContent = state.eye.active ? t('cameraActive') : t('cameraOff');
+  controls.langRu.classList.toggle('active', state.language === 'ru');
+  controls.langEn.classList.toggle('active', state.language === 'en');
+}
 
 function setViewBox() {
   const rect = stageRect();
@@ -112,6 +221,7 @@ function renderItems() {
     el.style.left = `${item.x}%`;
     el.style.top = `${item.y}%`;
     el.innerHTML = svgForItem(item);
+    el.addEventListener('pointerdown', startDragItem);
     item.element = el;
     floaterLayer.appendChild(el);
   });
@@ -140,6 +250,46 @@ function updateVisuals() {
 function addPreset(type) {
   state.items.push(makeItem(type));
   renderItems();
+}
+
+function startDragItem(event) {
+  if (state.drawingEnabled) return;
+  const item = state.items.find((entry) => entry.id === event.currentTarget.dataset.id);
+  if (!item) return;
+  const rect = stageRect();
+  const currentX = rect.width * (item.x / 100);
+  const currentY = rect.height * (item.y / 100);
+  state.dragging = {
+    id: item.id,
+    pointerId: event.pointerId,
+    dx: event.clientX - rect.left - currentX,
+    dy: event.clientY - rect.top - currentY
+  };
+  event.currentTarget.classList.add('dragging');
+  event.currentTarget.setPointerCapture?.(event.pointerId);
+  event.stopPropagation();
+}
+
+function moveDragItem(event) {
+  if (!state.dragging.id) return;
+  const item = state.items.find((entry) => entry.id === state.dragging.id);
+  if (!item) return;
+  const rect = stageRect();
+  const xPx = Math.max(0, Math.min(rect.width, event.clientX - rect.left - state.dragging.dx));
+  const yPx = Math.max(0, Math.min(rect.height, event.clientY - rect.top - state.dragging.dy));
+  item.x = (xPx / rect.width) * 100;
+  item.y = (yPx / rect.height) * 100;
+  if (item.element) {
+    item.element.style.left = `${item.x}%`;
+    item.element.style.top = `${item.y}%`;
+  }
+}
+
+function stopDragItem() {
+  if (!state.dragging.id) return;
+  const item = state.items.find((entry) => entry.id === state.dragging.id);
+  item?.element?.classList.remove('dragging');
+  state.dragging = { id: null, pointerId: null, dx: 0, dy: 0 };
 }
 
 function resetScene() {
@@ -218,13 +368,13 @@ function stopDrawing() {
 
 async function enableCamera() {
   if (!window.location.protocol.startsWith('https') && !window.location.hostname.includes('localhost')) {
-    controls.cameraStatus.textContent = 'Camera needs HTTPS or localhost';
+    controls.cameraStatus.textContent = t('cameraNeedsHttps');
     return;
   }
   if (state.eye.active) {
     state.motionMode = 'eye';
     document.querySelector('input[value="eye"]').checked = true;
-    controls.cameraStatus.textContent = 'Camera active';
+    controls.cameraStatus.textContent = t('cameraActive');
     return;
   }
 
@@ -252,10 +402,10 @@ async function enableCamera() {
     state.eye.active = true;
     state.motionMode = 'eye';
     document.querySelector('input[value="eye"]').checked = true;
-    controls.cameraStatus.textContent = 'Camera active';
+    controls.cameraStatus.textContent = t('cameraActive');
   } catch (error) {
     console.error(error);
-    controls.cameraStatus.textContent = 'Camera permission failed';
+    controls.cameraStatus.textContent = t('cameraPermissionFailed');
   }
 }
 
@@ -312,20 +462,49 @@ controls.brushAlpha.addEventListener('input', (e) => { state.brushAlpha = Number
 controls.drawToggle.addEventListener('click', () => {
   state.drawingEnabled = !state.drawingEnabled;
   controls.drawToggle.classList.toggle('active', state.drawingEnabled);
-  controls.drawToggle.textContent = state.drawingEnabled ? 'Drawing enabled' : 'Enable drawing';
+  controls.drawToggle.textContent = state.drawingEnabled ? t('drawingEnabled') : t('enableDrawing');
   stage.style.cursor = state.drawingEnabled ? 'crosshair' : 'default';
 });
 controls.clearDrawings.addEventListener('click', () => { drawLayer.innerHTML = ''; });
 controls.resetScene.addEventListener('click', resetScene);
 controls.demoScene.addEventListener('click', loadDemoScene);
 controls.startCamera.addEventListener('click', enableCamera);
+controls.langRu.addEventListener('click', () => { state.language = 'ru'; applyTranslations(); });
+controls.langEn.addEventListener('click', () => { state.language = 'en'; applyTranslations(); });
+controls.previewMode.addEventListener('click', () => {
+  state.previewOnly = !state.previewOnly;
+  document.body.classList.toggle('preview-only', state.previewOnly);
+  controls.previewMode.textContent = state.previewOnly ? t('exitFocusMode') : t('focusMode');
+});
+controls.fullscreenMode.addEventListener('click', async () => {
+  try {
+    if (!document.fullscreenElement) {
+      await stage.requestFullscreen();
+    } else {
+      await document.exitFullscreen();
+    }
+  } catch (error) {
+    console.error(error);
+  }
+});
+
+document.addEventListener('fullscreenchange', () => {
+  setTimeout(setViewBox, 50);
+});
 
 stage.addEventListener('pointerdown', startDrawing);
-stage.addEventListener('pointermove', moveDrawing);
-window.addEventListener('pointerup', stopDrawing);
+stage.addEventListener('pointermove', (event) => {
+  moveDragItem(event);
+  moveDrawing(event);
+});
+window.addEventListener('pointerup', () => {
+  stopDrawing();
+  stopDragItem();
+});
 window.addEventListener('resize', setViewBox);
 
 setViewBox();
 pickRandomTarget();
 loadDemoScene();
+applyTranslations();
 requestAnimationFrame(animate);

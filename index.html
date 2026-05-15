@@ -13,70 +13,80 @@
   <div class="app-shell">
     <aside class="panel controls">
       <div>
-        <p class="eyebrow">VitreoSketch</p>
-        <h1>Floater visualizer & editor</h1>
-        <p class="lead">Compose an MVP simulation of common vitreous floater shapes, then animate them with gentle drift or camera-based eye tracking.</p>
+        <div class="top-row">
+          <p class="eyebrow">VitreoSketch</p>
+          <div class="lang-switch">
+            <button id="langRu" class="ghost small active">RU</button>
+            <button id="langEn" class="ghost small">EN</button>
+          </div>
+        </div>
+        <h1 data-i18n="title">Floater visualizer & editor</h1>
+        <p class="lead" data-i18n="lead">Compose an MVP simulation of common vitreous floater shapes, then animate them with gentle drift or camera-based eye tracking.</p>
       </div>
 
       <section>
-        <h2>1. Add floaters</h2>
+        <h2 data-i18n="addTitle">1. Add floaters</h2>
         <div class="preset-grid">
-          <button data-preset="dot">Dot cluster</button>
-          <button data-preset="ring">Ring</button>
-          <button data-preset="thread">Thread</button>
-          <button data-preset="cobweb">Cobweb</button>
-          <button data-preset="smudge">Smudge</button>
+          <button data-preset="dot" data-i18n="presetDot">Dot cluster</button>
+          <button data-preset="ring" data-i18n="presetRing">Ring</button>
+          <button data-preset="thread" data-i18n="presetThread">Thread</button>
+          <button data-preset="cobweb" data-i18n="presetCobweb">Cobweb</button>
+          <button data-preset="smudge" data-i18n="presetSmudge">Smudge</button>
         </div>
-        <p class="hint">Based on commonly described forms: spots, rings/Weiss rings, thread-like strands, cobwebs, and cloudy smudges.</p>
+        <p class="hint" data-i18n="addHint">Based on commonly described forms: spots, rings/Weiss rings, thread-like strands, cobwebs, and cloudy smudges.</p>
       </section>
 
       <section>
-        <h2>2. Draw your own</h2>
+        <h2 data-i18n="drawTitle">2. Draw your own</h2>
         <div class="field-row compact">
-          <label>Brush size <input id="brushSize" type="range" min="1" max="16" value="4" /></label>
-          <label>Stroke alpha <input id="brushAlpha" type="range" min="0.05" max="0.8" step="0.05" value="0.25" /></label>
+          <label><span data-i18n="brushSize">Brush size</span> <input id="brushSize" type="range" min="1" max="16" value="4" /></label>
+          <label><span data-i18n="brushAlpha">Stroke alpha</span> <input id="brushAlpha" type="range" min="0.05" max="0.8" step="0.05" value="0.25" /></label>
         </div>
         <div class="toggle-row">
-          <button id="drawToggle">Enable drawing</button>
-          <button id="clearDrawings" class="ghost">Clear drawings</button>
+          <button id="drawToggle" data-i18n="enableDrawing">Enable drawing</button>
+          <button id="clearDrawings" class="ghost" data-i18n="clearDrawings">Clear drawings</button>
         </div>
       </section>
 
       <section>
-        <h2>3. Appearance</h2>
-        <label>Contrast <input id="contrast" type="range" min="0.15" max="1" step="0.05" value="0.55" /></label>
-        <label>Blur <input id="blur" type="range" min="0" max="24" step="1" value="9" /></label>
-        <label>Structure <input id="structure" type="range" min="0" max="1" step="0.05" value="0.45" /></label>
-        <label>Scale <input id="scale" type="range" min="0.6" max="1.8" step="0.05" value="1" /></label>
+        <h2 data-i18n="appearanceTitle">3. Appearance</h2>
+        <label><span data-i18n="contrast">Contrast</span> <input id="contrast" type="range" min="0.15" max="1" step="0.05" value="0.55" /></label>
+        <label><span data-i18n="blur">Blur</span> <input id="blur" type="range" min="0" max="24" step="1" value="9" /></label>
+        <label><span data-i18n="structure">Structure</span> <input id="structure" type="range" min="0" max="1" step="0.05" value="0.45" /></label>
+        <label><span data-i18n="scale">Scale</span> <input id="scale" type="range" min="0.6" max="1.8" step="0.05" value="1" /></label>
       </section>
 
       <section>
-        <h2>4. Motion</h2>
+        <h2 data-i18n="motionTitle">4. Motion</h2>
         <div class="mode-grid">
-          <label><input type="radio" name="motionMode" value="random" checked /> Random drift</label>
-          <label><input type="radio" name="motionMode" value="eye" /> Eye tracking</label>
+          <label><input type="radio" name="motionMode" value="random" checked /> <span data-i18n="randomDrift">Random drift</span></label>
+          <label><input type="radio" name="motionMode" value="eye" /> <span data-i18n="eyeTracking">Eye tracking</span></label>
         </div>
-        <label>Motion intensity <input id="motionIntensity" type="range" min="0.2" max="1.5" step="0.05" value="0.8" /></label>
+        <label><span data-i18n="motionIntensity">Motion intensity</span> <input id="motionIntensity" type="range" min="0.2" max="1.5" step="0.05" value="0.8" /></label>
         <div class="toggle-row">
-          <button id="startCamera" class="ghost">Enable camera</button>
-          <span id="cameraStatus" class="hint">Camera off</span>
+          <button id="startCamera" class="ghost" data-i18n="enableCamera">Enable camera</button>
+          <span id="cameraStatus" class="hint" data-i18n="cameraOff">Camera off</span>
         </div>
       </section>
 
       <section>
-        <h2>Scene</h2>
+        <h2 data-i18n="sceneTitle">Scene</h2>
         <div class="toggle-row">
-          <button id="resetScene" class="ghost">Reset scene</button>
-          <button id="demoScene">Load starter set</button>
+          <button id="resetScene" class="ghost" data-i18n="resetScene">Reset scene</button>
+          <button id="demoScene" data-i18n="loadStarterSet">Load starter set</button>
         </div>
       </section>
     </aside>
 
     <main class="stage-wrap">
       <div class="stage-toolbar">
-        <span>Preview</span>
-        <span class="hint">Tip: draw on the stage, then switch to eye tracking on HTTPS / GitHub Pages.</span>
+        <span data-i18n="preview">Preview</span>
+        <div class="toolbar-actions">
+          <button id="previewMode" class="ghost small" data-i18n="focusMode">Focus mode</button>
+          <button id="fullscreenMode" class="ghost small" data-i18n="fullscreen">Fullscreen</button>
+        </div>
       </div>
+      <div class="stage-subhint hint" data-i18n="stageHint">Tip: draw on the stage, then switch to eye tracking on HTTPS / GitHub Pages.</div>
       <div id="stage" class="stage">
         <div id="floaterLayer" class="floater-layer"></div>
         <svg id="drawLayer" class="draw-layer"></svg>
