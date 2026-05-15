@@ -14,7 +14,8 @@ const translations = {
     presetThread: 'Thread',
     presetCobweb: 'Cobweb',
     presetSmudge: 'Smudge',
-    addHint: 'Based on commonly described forms: spots, rings/Weiss rings, thread-like strands, cobwebs, and cloudy smudges.',
+    presetCloud: 'Cloud',
+    addHint: 'Based on commonly described forms: spots, rings/Weiss rings, thread-like strands, cobwebs, cloudy smudges, and diffuse cloud-like floaters.',
     drawTitle: '2. Draw your own',
     brushSize: 'Brush size',
     brushAlpha: 'Stroke alpha',
@@ -24,7 +25,7 @@ const translations = {
     selectionTitle: '3. Selected floater',
     selectionNone: 'Nothing selected',
     selectionActive: 'Selected',
-    selectionHint: 'Click a floater to edit it. Ctrl/Cmd+C copies it, Ctrl/Cmd+V pastes it.',
+    selectionHint: 'Click a floater or drawing to edit it. Drag to reposition. Ctrl/Cmd+C copies floaters, Delete removes the selected object.',
     contrast: 'Contrast',
     blur: 'Blur',
     structure: 'Structure',
@@ -48,13 +49,14 @@ const translations = {
     sceneBeach: 'White sand beach',
     sceneSnowy: 'Snowy day',
     sceneCloudy: 'Cloudy sky',
+    scenePlain: 'No background',
     resetScene: 'Reset scene',
     loadStarterSet: 'Load starter set',
     preview: 'Preview',
     focusMode: 'Focus mode',
     exitFocusMode: 'Exit focus mode',
     fullscreen: 'Fullscreen',
-    stageHint: 'Tip: click a floater to edit it, drag it around, or use eye tracking on HTTPS / GitHub Pages.'
+    stageHint: 'Tip: click a floater or drawing to edit it, drag it around, or use eye tracking on HTTPS / GitHub Pages.'
   },
   ru: {
     title: 'Визуализатор и редактор помутнений',
@@ -65,17 +67,18 @@ const translations = {
     presetThread: 'Нить',
     presetCobweb: 'Паутина',
     presetSmudge: 'Пятно',
-    addHint: 'Основано на частых описаниях: точки, кольца/кольцо Вейса, нитевидные полосы, паутинка и мутные пятна.',
+    presetCloud: 'Облако',
+    addHint: 'Основано на частых описаниях: точки, кольца/кольцо Вейса, нитевидные полосы, паутинка, мутные пятна и облачные помутнения.',
     drawTitle: '2. Нарисуйте своё',
     brushSize: 'Размер кисти',
     brushAlpha: 'Прозрачность штриха',
     enableDrawing: 'Включить рисование',
     drawingEnabled: 'Рисование включено',
     clearDrawings: 'Очистить рисунок',
-    selectionTitle: '3. Выбранное помутнение',
+    selectionTitle: '3. Выбранный объект',
     selectionNone: 'Ничего не выбрано',
     selectionActive: 'Выбрано',
-    selectionHint: 'Кликни по помутнению, чтобы редактировать его. Ctrl/Cmd+C копирует, Ctrl/Cmd+V вставляет.',
+    selectionHint: 'Кликни по помутнению или рисунку, чтобы редактировать его. Перетаскивай мышкой. Ctrl/Cmd+C копирует помутнения, Delete удаляет выбранный объект.',
     contrast: 'Контрастность',
     blur: 'Размытие',
     structure: 'Структура',
@@ -99,20 +102,21 @@ const translations = {
     sceneBeach: 'Пляж с белым песком',
     sceneSnowy: 'Снежный день',
     sceneCloudy: 'Облачное небо',
+    scenePlain: 'Без фона',
     resetScene: 'Сбросить сцену',
     loadStarterSet: 'Загрузить набор',
     preview: 'Предпросмотр',
     focusMode: 'Режим просмотра',
     exitFocusMode: 'Выйти из режима',
     fullscreen: 'На весь экран',
-    stageHint: 'Совет: кликни по помутнению, чтобы редактировать его, перетаскивай его мышкой или включай слежение за глазами на HTTPS / GitHub Pages.'
+    stageHint: 'Совет: кликни по помутнению или рисунку, чтобы редактировать его, перетаскивай его мышкой или включай слежение за глазами на HTTPS / GitHub Pages.'
   }
 };
 
 const state = {
   items: [],
   drawings: [],
-  selectedId: null,
+  selection: { type: null, id: null },
   clipboard: null,
   drawingEnabled: false,
   drawingPath: null,
@@ -124,19 +128,20 @@ const state = {
   brushAlpha: 0.25,
   scene: 'sunny',
   randomTarget: { x: 0, y: 0 },
-  randomPos: { x: 0, y: 0 },
+  motionOffset: { x: 0, y: 0 },
+  motionTarget: { x: 0, y: 0 },
   eye: {
     active: false,
     baseEyeLidDistance: null,
-    lastX: window.innerWidth / 2,
-    lastY: window.innerHeight / 2,
-    smoothFactor: 0.025,
     faceMesh: null,
-    camera: null
+    camera: null,
+    targetX: 0,
+    targetY: 0
   },
   language: 'en',
   previewOnly: false,
   dragging: {
+    type: null,
     id: null,
     pointerId: null,
     dx: 0,
@@ -177,7 +182,8 @@ function rand(min, max) { return Math.random() * (max - min) + min; }
 function uid() { return `${Date.now()}-${Math.random().toString(16).slice(2)}`; }
 function stageRect() { return stage.getBoundingClientRect(); }
 function t(key) { return translations[state.language][key] || translations.en[key] || key; }
-function selectedItem() { return state.items.find((item) => item.id === state.selectedId) || null; }
+function selectedItem() { return state.selection.type === 'item' ? state.items.find((item) => item.id === state.selection.id) || null : null; }
+function selectedDrawing() { return state.selection.type === 'drawing' ? state.drawings.find((drawing) => drawing.id === state.selection.id) || null : null; }
 
 function makeItem(type, x = rand(20, 80), y = rand(20, 80), overrides = {}) {
   return {
@@ -197,16 +203,15 @@ function makeItem(type, x = rand(20, 80), y = rand(20, 80), overrides = {}) {
 }
 
 function setViewBox() {
-  const rect = stageRect();
-  drawLayer.setAttribute('viewBox', `0 0 ${rect.width} ${rect.height}`);
+  const rect = drawLayer.getBoundingClientRect();
+  drawLayer.setAttribute('viewBox', `0 0 ${Math.max(1, rect.width)} ${Math.max(1, rect.height)}`);
 }
 
 function applyTranslations() {
   document.documentElement.lang = state.language;
   document.title = state.language === 'ru' ? 'VitreoSketch — Визуализатор помутнений' : 'VitreoSketch — Floater Visualizer';
   document.querySelectorAll('[data-i18n]').forEach((node) => {
-    const key = node.dataset.i18n;
-    node.textContent = t(key);
+    node.textContent = t(node.dataset.i18n);
   });
   controls.drawToggle.textContent = state.drawingEnabled ? t('drawingEnabled') : t('enableDrawing');
   controls.previewMode.textContent = state.previewOnly ? t('exitFocusMode') : t('focusMode');
@@ -216,13 +221,9 @@ function applyTranslations() {
   updateSelectionUi();
 }
 
-function sceneClass() {
-  return `scene-${state.scene}`;
-}
-
 function applyScene() {
-  stage.classList.remove('scene-sunny', 'scene-beach', 'scene-snowy', 'scene-cloudy');
-  stage.classList.add(sceneClass());
+  stage.classList.remove('scene-sunny', 'scene-beach', 'scene-snowy', 'scene-cloudy', 'scene-plain');
+  stage.classList.add(`scene-${state.scene}`);
   sceneButtons.forEach((button) => button.classList.toggle('active', button.dataset.scene === state.scene));
 }
 
@@ -249,7 +250,77 @@ function svgForItem(item) {
   if (item.type === 'cobweb') {
     return `<svg class="floater-svg" width="300" height="230" viewBox="0 0 300 230">${defs}<g filter="url(#b-${item.id})"><path d="M24 122 C 58 35, 110 52, 144 114 S 232 186, 279 103" fill="none" stroke="${stroke}" stroke-width="${strokeWidth}"/><path d="M72 154 C 99 115, 122 88, 165 102 S 210 139, 240 164" fill="none" stroke="${stroke}" stroke-width="${(strokeWidth * 0.8).toFixed(2)}"/><path d="M55 72 C 102 112, 132 120, 193 96" fill="none" stroke="${stroke}" stroke-width="${(strokeWidth * 0.65).toFixed(2)}"/></g></svg>`;
   }
+  if (item.type === 'cloud') {
+    return `<svg class="floater-svg" width="280" height="190" viewBox="0 0 280 190">${defs}<g filter="url(#b-${item.id})"><ellipse cx="88" cy="100" rx="48" ry="28" fill="rgba(35,35,35,${Math.max(0.07, item.contrast * 0.18).toFixed(2)})" /><ellipse cx="136" cy="88" rx="62" ry="34" fill="rgba(35,35,35,${Math.max(0.08, item.contrast * 0.22).toFixed(2)})" /><ellipse cx="188" cy="104" rx="58" ry="31" fill="rgba(35,35,35,${Math.max(0.06, item.contrast * 0.18).toFixed(2)})" /><ellipse cx="144" cy="112" rx="92" ry="38" fill="rgba(35,35,35,${Math.max(0.04, item.contrast * 0.11).toFixed(2)})" /></g></svg>`;
+  }
   return `<svg class="floater-svg" width="260" height="180" viewBox="0 0 260 180">${defs}<g filter="url(#b-${item.id})"><ellipse cx="130" cy="90" rx="76" ry="40" fill="rgba(35,35,35,${Math.max(0.08, item.contrast * 0.25).toFixed(2)})" /><ellipse cx="160" cy="92" rx="42" ry="22" fill="rgba(35,35,35,${Math.max(0.05, item.contrast * 0.14).toFixed(2)})" /></g></svg>`;
+}
+
+function buildDrawingPath(points) {
+  if (!points.length) return '';
+  if (points.length === 1) return `M ${points[0].x} ${points[0].y}`;
+  let d = `M ${points[0].x} ${points[0].y}`;
+  for (let i = 1; i < points.length; i += 1) {
+    const prev = points[i - 1];
+    const point = points[i];
+    const midX = (prev.x + point.x) / 2;
+    const midY = (prev.y + point.y) / 2;
+    d += ` Q ${prev.x} ${prev.y} ${midX} ${midY}`;
+  }
+  const last = points[points.length - 1];
+  d += ` L ${last.x} ${last.y}`;
+  return d;
+}
+
+function createDrawingFromPoint(point) {
+  return {
+    id: uid(),
+    type: 'drawing',
+    x: point.x,
+    y: point.y,
+    contrast: 0.55,
+    blur: Math.max(2, state.brushSize * 0.6),
+    structure: 0.45,
+    scale: 1,
+    rotation: 0,
+    size: state.brushSize,
+    alpha: state.brushAlpha,
+    points: [{ x: 0, y: 0 }],
+    bounds: { minX: 0, minY: 0, width: 1, height: 1 }
+  };
+}
+
+function addPointToDrawing(drawing, point) {
+  drawing.points.push({ x: point.x - drawing.x, y: point.y - drawing.y });
+  normalizeDrawing(drawing);
+}
+
+function normalizeDrawing(drawing) {
+  const xs = drawing.points.map((point) => point.x);
+  const ys = drawing.points.map((point) => point.y);
+  const minX = Math.min(...xs);
+  const maxX = Math.max(...xs);
+  const minY = Math.min(...ys);
+  const maxY = Math.max(...ys);
+  const centerX = (minX + maxX) / 2;
+  const centerY = (minY + maxY) / 2;
+
+  drawing.points = drawing.points.map((point) => ({
+    x: point.x - centerX,
+    y: point.y - centerY
+  }));
+  drawing.x += centerX;
+  drawing.y += centerY;
+  drawing.bounds = {
+    minX: minX - centerX,
+    minY: minY - centerY,
+    width: Math.max(1, maxX - minX),
+    height: Math.max(1, maxY - minY)
+  };
+}
+
+function drawingLabel() {
+  return state.language === 'ru' ? 'Рисунок' : 'Drawing';
 }
 
 function renderItems() {
@@ -261,7 +332,7 @@ function renderItems() {
     el.style.left = `${item.x}%`;
     el.style.top = `${item.y}%`;
     el.innerHTML = svgForItem(item);
-    el.classList.toggle('selected', item.id === state.selectedId);
+    el.classList.toggle('selected', state.selection.type === 'item' && item.id === state.selection.id);
     el.addEventListener('pointerdown', startDragItem);
     item.element = el;
     floaterLayer.appendChild(el);
@@ -272,40 +343,88 @@ function renderItems() {
 function renderDrawings() {
   drawLayer.innerHTML = '';
   state.drawings.forEach((drawing) => {
-    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    path.setAttribute('d', drawing.d);
-    path.setAttribute('fill', 'none');
-    path.setAttribute('stroke-linecap', 'round');
-    path.setAttribute('stroke-linejoin', 'round');
-    path.setAttribute('stroke-width', `${drawing.size}`);
-    path.setAttribute('stroke', `rgba(35,35,35,${drawing.alpha})`);
-    path.style.filter = `blur(${drawing.blur}px)`;
-    drawLayer.appendChild(path);
+    const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    group.setAttribute('class', `drawing-group${state.selection.type === 'drawing' && state.selection.id === drawing.id ? ' selected' : ''}`);
+    group.dataset.id = drawing.id;
+    group.setAttribute('transform', `translate(${drawing.x} ${drawing.y}) rotate(${drawing.rotation}) scale(${drawing.scale})`);
+
+    const hit = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    hit.setAttribute('d', buildDrawingPath(drawing.points));
+    hit.setAttribute('fill', 'none');
+    hit.setAttribute('stroke', 'transparent');
+    hit.setAttribute('stroke-width', `${Math.max(18, drawing.size * 4)}`);
+    hit.setAttribute('stroke-linecap', 'round');
+    hit.setAttribute('stroke-linejoin', 'round');
+    hit.setAttribute('class', 'drawing-hit');
+    hit.dataset.id = drawing.id;
+    hit.addEventListener('pointerdown', startDragDrawing);
+
+    const visible = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    visible.setAttribute('d', buildDrawingPath(drawing.points));
+    visible.setAttribute('fill', 'none');
+    visible.setAttribute('stroke-linecap', 'round');
+    visible.setAttribute('stroke-linejoin', 'round');
+    visible.setAttribute('stroke-width', `${drawing.size * (0.75 + drawing.structure * 0.9)}`);
+    visible.setAttribute('stroke', `rgba(35,35,35,${Math.max(0.08, drawing.alpha * (0.45 + drawing.contrast * 0.85))})`);
+    visible.style.filter = `blur(${drawing.blur}px)`;
+    visible.style.pointerEvents = 'none';
+
+    if (state.selection.type === 'drawing' && state.selection.id === drawing.id) {
+      const outline = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      const padding = Math.max(12, drawing.size * 2.5);
+      outline.setAttribute('x', `${drawing.bounds.minX - padding}`);
+      outline.setAttribute('y', `${drawing.bounds.minY - padding}`);
+      outline.setAttribute('width', `${drawing.bounds.width + padding * 2}`);
+      outline.setAttribute('height', `${drawing.bounds.height + padding * 2}`);
+      outline.setAttribute('rx', '18');
+      outline.setAttribute('fill', 'none');
+      outline.setAttribute('stroke', 'rgba(17, 24, 39, 0.45)');
+      outline.setAttribute('stroke-width', '2');
+      outline.setAttribute('stroke-dasharray', '6 6');
+      outline.style.pointerEvents = 'none';
+      group.appendChild(outline);
+    }
+
+    group.appendChild(hit);
+    group.appendChild(visible);
+    drawLayer.appendChild(group);
   });
 }
 
 function updateSelectionUi() {
   const item = selectedItem();
-  const disabled = !item;
+  const drawing = selectedDrawing();
+  const selected = item || drawing;
+  const disabled = !selected;
   [controls.itemContrast, controls.itemBlur, controls.itemStructure, controls.itemScale, controls.itemRotation, controls.duplicateSelected, controls.deleteSelected]
     .forEach((control) => { control.disabled = disabled; });
 
-  if (!item) {
+  if (!selected) {
     controls.selectionStatus.textContent = t('selectionNone');
     return;
   }
 
-  controls.selectionStatus.textContent = `${t('selectionActive')}: ${t(`preset${item.type.charAt(0).toUpperCase()}${item.type.slice(1)}`)}`;
-  controls.itemContrast.value = item.contrast;
-  controls.itemBlur.value = item.blur;
-  controls.itemStructure.value = item.structure;
-  controls.itemScale.value = item.scale;
-  controls.itemRotation.value = item.rotation;
+  if (item) {
+    controls.selectionStatus.textContent = `${t('selectionActive')}: ${t(`preset${item.type.charAt(0).toUpperCase()}${item.type.slice(1)}`)}`;
+  } else {
+    controls.selectionStatus.textContent = `${t('selectionActive')}: ${drawingLabel()}`;
+  }
+
+  controls.itemContrast.value = selected.contrast;
+  controls.itemBlur.value = selected.blur;
+  controls.itemStructure.value = selected.structure;
+  controls.itemScale.value = selected.scale;
+  controls.itemRotation.value = selected.rotation;
 }
 
-function selectItem(id) {
-  state.selectedId = id;
-  state.items.forEach((item) => item.element?.classList.toggle('selected', item.id === id));
+function refreshSelectionStyles() {
+  state.items.forEach((item) => item.element?.classList.toggle('selected', state.selection.type === 'item' && item.id === state.selection.id));
+  renderDrawings();
+}
+
+function selectObject(type, id) {
+  state.selection = { type, id };
+  refreshSelectionStyles();
   updateSelectionUi();
 }
 
@@ -313,38 +432,77 @@ function addPreset(type) {
   const item = makeItem(type);
   state.items.push(item);
   renderItems();
-  selectItem(item.id);
+  selectObject('item', item.id);
 }
 
 function copySelected() {
   const item = selectedItem();
-  if (!item) return;
-  const { type, rotation, scale, density, contrast, blur, structure } = item;
-  state.clipboard = { type, rotation, scale, density, contrast, blur, structure };
+  if (item) {
+    const { type, rotation, scale, density, contrast, blur, structure } = item;
+    state.clipboard = { objectType: 'item', type, rotation, scale, density, contrast, blur, structure };
+    return;
+  }
+
+  const drawing = selectedDrawing();
+  if (!drawing) return;
+  state.clipboard = {
+    objectType: 'drawing',
+    rotation: drawing.rotation,
+    scale: drawing.scale,
+    contrast: drawing.contrast,
+    blur: drawing.blur,
+    structure: drawing.structure,
+    size: drawing.size,
+    alpha: drawing.alpha,
+    points: drawing.points.map((point) => ({ ...point }))
+  };
 }
 
 function pasteSelected() {
   if (!state.clipboard) return;
-  const item = makeItem(state.clipboard.type, 54, 54, {
-    rotation: state.clipboard.rotation,
-    scale: state.clipboard.scale,
-    density: state.clipboard.density,
-    contrast: state.clipboard.contrast,
-    blur: state.clipboard.blur,
-    structure: state.clipboard.structure
-  });
+  if (state.clipboard.objectType === 'drawing') {
+    const rect = stageRect();
+    const drawing = {
+      id: uid(),
+      type: 'drawing',
+      x: rect.width * 0.54 + rand(-24, 24),
+      y: rect.height * 0.54 + rand(-24, 24),
+      rotation: state.clipboard.rotation,
+      scale: state.clipboard.scale,
+      contrast: state.clipboard.contrast,
+      blur: state.clipboard.blur,
+      structure: state.clipboard.structure,
+      size: state.clipboard.size,
+      alpha: state.clipboard.alpha,
+      points: state.clipboard.points.map((point) => ({ ...point })),
+      bounds: { minX: 0, minY: 0, width: 1, height: 1 }
+    };
+    normalizeDrawing(drawing);
+    state.drawings.push(drawing);
+    renderDrawings();
+    selectObject('drawing', drawing.id);
+    return;
+  }
+
+  const item = makeItem(state.clipboard.type, 54, 54, { ...state.clipboard });
   item.x += rand(-6, 6);
   item.y += rand(-6, 6);
   state.items.push(item);
   renderItems();
-  selectItem(item.id);
+  selectObject('item', item.id);
 }
 
 function deleteSelected() {
-  if (!state.selectedId) return;
-  state.items = state.items.filter((item) => item.id !== state.selectedId);
-  state.selectedId = null;
-  renderItems();
+  if (state.selection.type === 'item') {
+    state.items = state.items.filter((item) => item.id !== state.selection.id);
+    renderItems();
+  } else if (state.selection.type === 'drawing') {
+    state.drawings = state.drawings.filter((drawing) => drawing.id !== state.selection.id);
+    renderDrawings();
+  } else {
+    return;
+  }
+  state.selection = { type: null, id: null };
   updateSelectionUi();
 }
 
@@ -352,11 +510,12 @@ function startDragItem(event) {
   if (state.drawingEnabled) return;
   const item = state.items.find((entry) => entry.id === event.currentTarget.dataset.id);
   if (!item) return;
-  selectItem(item.id);
+  selectObject('item', item.id);
   const rect = stageRect();
   const currentX = rect.width * (item.x / 100);
   const currentY = rect.height * (item.y / 100);
   state.dragging = {
+    type: 'item',
     id: item.id,
     pointerId: event.pointerId,
     dx: event.clientX - rect.left - currentX,
@@ -367,33 +526,65 @@ function startDragItem(event) {
   event.stopPropagation();
 }
 
+function startDragDrawing(event) {
+  if (state.drawingEnabled) return;
+  const drawing = state.drawings.find((entry) => entry.id === event.currentTarget.dataset.id);
+  if (!drawing) return;
+  selectObject('drawing', drawing.id);
+  const point = pointerToStage(event);
+  state.dragging = {
+    type: 'drawing',
+    id: drawing.id,
+    pointerId: event.pointerId,
+    dx: point.x - drawing.x,
+    dy: point.y - drawing.y
+  };
+  event.stopPropagation();
+}
+
 function moveDragItem(event) {
   if (!state.dragging.id) return;
-  const item = state.items.find((entry) => entry.id === state.dragging.id);
-  if (!item) return;
-  const rect = stageRect();
-  const xPx = Math.max(0, Math.min(rect.width, event.clientX - rect.left - state.dragging.dx));
-  const yPx = Math.max(0, Math.min(rect.height, event.clientY - rect.top - state.dragging.dy));
-  item.x = (xPx / rect.width) * 100;
-  item.y = (yPx / rect.height) * 100;
-  if (item.element) {
-    item.element.style.left = `${item.x}%`;
-    item.element.style.top = `${item.y}%`;
+  if (state.dragging.type === 'item') {
+    const item = state.items.find((entry) => entry.id === state.dragging.id);
+    if (!item) return;
+    const rect = stageRect();
+    const xPx = Math.max(0, Math.min(rect.width, event.clientX - rect.left - state.dragging.dx));
+    const yPx = Math.max(0, Math.min(rect.height, event.clientY - rect.top - state.dragging.dy));
+    item.x = (xPx / rect.width) * 100;
+    item.y = (yPx / rect.height) * 100;
+    if (item.element) {
+      item.element.style.left = `${item.x}%`;
+      item.element.style.top = `${item.y}%`;
+    }
+    return;
   }
+
+  const drawing = state.drawings.find((entry) => entry.id === state.dragging.id);
+  if (!drawing) return;
+  const point = pointerToStage(event);
+  const rect = stageRect();
+  drawing.x = Math.max(0, Math.min(rect.width, point.x - state.dragging.dx));
+  drawing.y = Math.max(0, Math.min(rect.height, point.y - state.dragging.dy));
+  renderDrawings();
 }
 
 function stopDragItem() {
   if (!state.dragging.id) return;
-  const item = state.items.find((entry) => entry.id === state.dragging.id);
-  item?.element?.classList.remove('dragging');
-  state.dragging = { id: null, pointerId: null, dx: 0, dy: 0 };
+  if (state.dragging.type === 'item') {
+    const item = state.items.find((entry) => entry.id === state.dragging.id);
+    item?.element?.classList.remove('dragging');
+  }
+  state.dragging = { type: null, id: null, pointerId: null, dx: 0, dy: 0 };
 }
 
 function resetScene() {
   state.items = [];
   state.drawings = [];
-  state.selectedId = null;
-  state.randomPos = { x: 0, y: 0 };
+  state.selection = { type: null, id: null };
+  state.motionOffset = { x: 0, y: 0 };
+  state.motionTarget = { x: 0, y: 0 };
+  state.eye.targetX = 0;
+  state.eye.targetY = 0;
   motionLayer.style.transform = 'translate(0px, 0px)';
   renderItems();
   renderDrawings();
@@ -406,10 +597,11 @@ function loadDemoScene() {
     makeItem('thread', 58, 56),
     makeItem('dot', 44, 62),
     makeItem('cobweb', 68, 40),
+    makeItem('cloud', 28, 62),
     makeItem('smudge', 54, 33)
   ];
   renderItems();
-  selectItem(state.items[0]?.id || null);
+  selectObject('item', state.items[0]?.id || null);
 }
 
 function pickRandomTarget() {
@@ -432,13 +624,20 @@ function applyItemTransforms(now) {
 function animate(now) {
   if (state.motionRunning) {
     if (state.motionMode === 'random') {
-      state.randomPos.x += (state.randomTarget.x - state.randomPos.x) * 0.008;
-      state.randomPos.y += (state.randomTarget.y - state.randomPos.y) * 0.008;
-      motionLayer.style.transform = `translate(${state.randomPos.x}px, ${state.randomPos.y}px)`;
+      state.motionTarget.x += (state.randomTarget.x - state.motionTarget.x) * 0.05;
+      state.motionTarget.y += (state.randomTarget.y - state.motionTarget.y) * 0.05;
+    } else {
+      state.motionTarget.x += (state.eye.targetX - state.motionTarget.x) * 0.14;
+      state.motionTarget.y += (state.eye.targetY - state.motionTarget.y) * 0.14;
     }
   } else {
-    motionLayer.style.transform = 'translate(0px, 0px)';
+    state.motionTarget.x += (0 - state.motionTarget.x) * 0.15;
+    state.motionTarget.y += (0 - state.motionTarget.y) * 0.15;
   }
+
+  state.motionOffset.x += (state.motionTarget.x - state.motionOffset.x) * 0.18;
+  state.motionOffset.y += (state.motionTarget.y - state.motionOffset.y) * 0.18;
+  motionLayer.style.transform = `translate(${state.motionOffset.x}px, ${state.motionOffset.y}px)`;
   applyItemTransforms(now);
   requestAnimationFrame(animate);
 }
@@ -448,40 +647,53 @@ setInterval(() => {
 }, 2800);
 
 function pointerToStage(event) {
-  const rect = stageRect();
-  return { x: event.clientX - rect.left, y: event.clientY - rect.top };
+  const point = drawLayer.createSVGPoint();
+  point.x = event.clientX;
+  point.y = event.clientY;
+  const ctm = drawLayer.getScreenCTM();
+  if (!ctm) {
+    const rect = stageRect();
+    return { x: event.clientX - rect.left, y: event.clientY - rect.top };
+  }
+  const local = point.matrixTransform(ctm.inverse());
+  return { x: local.x, y: local.y };
 }
 
 function startDrawing(event) {
+  const clickedInteractive = event.target.closest('.floater-item, .drawing-hit');
   if (!state.drawingEnabled) {
-    if (event.target === stage || event.target.classList?.contains('scene-overlay')) selectItem(null);
+    if (!clickedInteractive) selectObject(null, null);
     return;
   }
+  if (clickedInteractive) return;
+
   const point = pointerToStage(event);
   state.lastPointer = point;
-  const drawing = {
-    id: uid(),
-    d: `M ${point.x} ${point.y}`,
-    size: state.brushSize,
-    alpha: state.brushAlpha,
-    blur: Math.max(2, state.brushSize * 0.6)
-  };
+  const drawing = createDrawingFromPoint(point);
   state.drawings.push(drawing);
   state.drawingPath = drawing;
   renderDrawings();
+  selectObject('drawing', drawing.id);
 }
 
 function moveDrawing(event) {
   if (!state.drawingEnabled || !state.drawingPath) return;
   const point = pointerToStage(event);
-  const midX = (state.lastPointer.x + point.x) / 2;
-  const midY = (state.lastPointer.y + point.y) / 2;
-  state.drawingPath.d = `${state.drawingPath.d} Q ${state.lastPointer.x} ${state.lastPointer.y} ${midX} ${midY}`;
+  const last = state.lastPointer;
+  if (!last) return;
+  const distance = Math.hypot(point.x - last.x, point.y - last.y);
+  if (distance < 1.5) return;
+  addPointToDrawing(state.drawingPath, point);
   state.lastPointer = point;
   renderDrawings();
 }
 
 function stopDrawing() {
+  if (state.drawingPath?.points.length === 1) {
+    state.drawingPath.points.push({ x: 0.5, y: 0.5 });
+    normalizeDrawing(state.drawingPath);
+    renderDrawings();
+  }
   state.drawingPath = null;
   state.lastPointer = null;
 }
@@ -500,15 +712,15 @@ async function enableCamera() {
   faceMesh.setOptions({
     maxNumFaces: 1,
     refineLandmarks: true,
-    minDetectionConfidence: 0.2,
-    minTrackingConfidence: 0.2
+    minDetectionConfidence: 0.45,
+    minTrackingConfidence: 0.45
   });
   faceMesh.onResults(onFaceResults);
 
   const camera = new Camera(cameraFeed, {
     onFrame: async () => { await faceMesh.send({ image: cameraFeed }); },
-    width: 640,
-    height: 480
+    width: 480,
+    height: 360
   });
 
   try {
@@ -536,36 +748,45 @@ function onFaceResults(results) {
   const leftIris = landmarks[468];
   const rightIris = landmarks[473];
 
-  const leftEyeLidDistance = leftUpperEyelid.y - leftLowerEyelid.y;
-  const rightEyeLidDistance = rightUpperEyelid.y - rightLowerEyelid.y;
+  const leftEyeLidDistance = leftLowerEyelid.y - leftUpperEyelid.y;
+  const rightEyeLidDistance = rightLowerEyelid.y - rightUpperEyelid.y;
   const currentEyeLidDistance = (leftEyeLidDistance + rightEyeLidDistance) / 2;
 
   if (state.eye.baseEyeLidDistance === null) state.eye.baseEyeLidDistance = currentEyeLidDistance;
 
   const eyeLidDelta = currentEyeLidDistance - state.eye.baseEyeLidDistance;
-  const leftEyeWidth = landmarks[133].x - landmarks[33].x;
-  const rightEyeWidth = landmarks[263].x - landmarks[362].x;
+  const leftEyeWidth = Math.max(0.0001, landmarks[133].x - landmarks[33].x);
+  const rightEyeWidth = Math.max(0.0001, landmarks[263].x - landmarks[362].x);
   const leftIrisOffsetX = (leftIris.x - landmarks[33].x) / leftEyeWidth - 0.5;
   const rightIrisOffsetX = (rightIris.x - landmarks[362].x) / rightEyeWidth - 0.5;
   const irisOffsetX = -(leftIrisOffsetX + rightIrisOffsetX) / 2;
 
-  const targetX = rect.width / 2 + irisOffsetX * rect.width * 0.9 * 25 * state.motionIntensity;
-  const targetY = rect.height / 2 + eyeLidDelta * rect.height * 500 * state.motionIntensity;
-
-  state.eye.lastX += (targetX - state.eye.lastX) * state.eye.smoothFactor;
-  state.eye.lastY += (targetY - state.eye.lastY) * state.eye.smoothFactor;
-
-  const limitedX = Math.max(-rect.width * 0.18, Math.min(state.eye.lastX - rect.width / 2, rect.width * 0.18));
-  const limitedY = Math.max(-rect.height * 0.18, Math.min(state.eye.lastY - rect.height / 2, rect.height * 0.18));
-  motionLayer.style.transform = `translate(${limitedX}px, ${limitedY}px)`;
+  const maxX = rect.width * 0.18 * state.motionIntensity;
+  const maxY = rect.height * 0.16 * state.motionIntensity;
+  state.eye.targetX = Math.max(-maxX, Math.min(maxX, irisOffsetX * rect.width * 1.2 * state.motionIntensity));
+  state.eye.targetY = Math.max(-maxY, Math.min(maxY, eyeLidDelta * rect.height * 120 * state.motionIntensity));
 }
 
-function updateSelectedItem(prop, value) {
+function rerenderSelectedItem() {
   const item = selectedItem();
-  if (!item) return;
-  item[prop] = value;
-  renderItems();
-  selectItem(item.id);
+  if (!item?.element) return;
+  item.element.innerHTML = svgForItem(item);
+  applyItemTransforms(performance.now());
+}
+
+function updateSelectedObject(prop, value) {
+  const item = selectedItem();
+  if (item) {
+    item[prop] = value;
+    rerenderSelectedItem();
+    updateSelectionUi();
+    return;
+  }
+  const drawing = selectedDrawing();
+  if (!drawing) return;
+  drawing[prop] = value;
+  renderDrawings();
+  updateSelectionUi();
 }
 
 presetButtons.forEach((button) => button.addEventListener('click', () => addPreset(button.dataset.preset)));
@@ -575,11 +796,11 @@ motionInputs.forEach((input) => input.addEventListener('change', async () => {
   if (state.motionMode === 'eye') await enableCamera();
 }));
 controls.motionIntensity.addEventListener('input', (e) => { state.motionIntensity = Number(e.target.value); pickRandomTarget(); });
-controls.itemContrast.addEventListener('input', (e) => updateSelectedItem('contrast', Number(e.target.value)));
-controls.itemBlur.addEventListener('input', (e) => updateSelectedItem('blur', Number(e.target.value)));
-controls.itemStructure.addEventListener('input', (e) => updateSelectedItem('structure', Number(e.target.value)));
-controls.itemScale.addEventListener('input', (e) => updateSelectedItem('scale', Number(e.target.value)));
-controls.itemRotation.addEventListener('input', (e) => updateSelectedItem('rotation', Number(e.target.value)));
+controls.itemContrast.addEventListener('input', (e) => updateSelectedObject('contrast', Number(e.target.value)));
+controls.itemBlur.addEventListener('input', (e) => updateSelectedObject('blur', Number(e.target.value)));
+controls.itemStructure.addEventListener('input', (e) => updateSelectedObject('structure', Number(e.target.value)));
+controls.itemScale.addEventListener('input', (e) => updateSelectedObject('scale', Number(e.target.value)));
+controls.itemRotation.addEventListener('input', (e) => updateSelectedObject('rotation', Number(e.target.value)));
 controls.brushSize.addEventListener('input', (e) => { state.brushSize = Number(e.target.value); });
 controls.brushAlpha.addEventListener('input', (e) => { state.brushAlpha = Number(e.target.value); });
 controls.drawToggle.addEventListener('click', () => {
@@ -588,7 +809,12 @@ controls.drawToggle.addEventListener('click', () => {
   controls.drawToggle.textContent = state.drawingEnabled ? t('drawingEnabled') : t('enableDrawing');
   stage.style.cursor = state.drawingEnabled ? 'crosshair' : 'default';
 });
-controls.clearDrawings.addEventListener('click', () => { state.drawings = []; renderDrawings(); });
+controls.clearDrawings.addEventListener('click', () => {
+  state.drawings = [];
+  if (state.selection.type === 'drawing') state.selection = { type: null, id: null };
+  renderDrawings();
+  updateSelectionUi();
+});
 controls.resetScene.addEventListener('click', resetScene);
 controls.demoScene.addEventListener('click', loadDemoScene);
 controls.startMotion.addEventListener('click', () => {
@@ -598,7 +824,6 @@ controls.startMotion.addEventListener('click', () => {
 });
 controls.stopMotion.addEventListener('click', () => {
   state.motionRunning = false;
-  motionLayer.style.transform = 'translate(0px, 0px)';
 });
 controls.startCamera.addEventListener('click', enableCamera);
 controls.duplicateSelected.addEventListener('click', () => { copySelected(); pasteSelected(); });
@@ -633,9 +858,7 @@ window.addEventListener('resize', setViewBox);
 window.addEventListener('keydown', (event) => {
   const isMac = navigator.platform.toUpperCase().includes('MAC');
   const mod = isMac ? event.metaKey : event.ctrlKey;
-  if (mod && event.key.toLowerCase() === 'c') {
-    copySelected();
-  }
+  if (mod && event.key.toLowerCase() === 'c') copySelected();
   if (mod && event.key.toLowerCase() === 'v') {
     pasteSelected();
     event.preventDefault();
@@ -647,7 +870,8 @@ window.addEventListener('keydown', (event) => {
 
 setViewBox();
 pickRandomTarget();
-loadDemoScene();
+renderItems();
+renderDrawings();
 applyScene();
 applyTranslations();
 requestAnimationFrame(animate);
