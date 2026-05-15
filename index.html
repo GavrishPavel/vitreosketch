@@ -25,6 +25,26 @@
       </div>
 
       <section>
+        <h2 data-i18n="eyeTitle">0. Eye setup</h2>
+        <div class="field-row compact stack-mobile">
+          <label>
+            <span data-i18n="activeEye">Editing eye</span>
+            <div class="pill-row">
+              <button type="button" class="ghost active" data-eye-target="left" data-i18n="leftEye">Left eye</button>
+              <button type="button" class="ghost" data-eye-target="right" data-i18n="rightEye">Right eye</button>
+            </div>
+          </label>
+          <label>
+            <span data-i18n="previewEyes">Preview eyes</span>
+            <div class="pill-row">
+              <button type="button" class="ghost" data-preview-eyes="active" data-i18n="previewActiveOnly">Active eye only</button>
+              <button type="button" class="ghost active" data-preview-eyes="both" data-i18n="previewBothEyes">Both eyes</button>
+            </div>
+          </label>
+        </div>
+      </section>
+
+      <section>
         <h2 data-i18n="addTitle">1. Add floaters</h2>
         <div class="preset-grid">
           <button data-preset="dot" data-i18n="presetDot">Dot cluster</button>
@@ -107,12 +127,16 @@
           <button id="fullscreenMode" class="ghost small" data-i18n="fullscreen">Fullscreen</button>
         </div>
       </div>
-      <div class="stage-subhint hint" data-i18n="stageHint">Tip: click a floater to edit it, drag it around, or use eye tracking on HTTPS / GitHub Pages.</div>
+      <div class="stage-subhint hint" data-i18n="stageHint">Tip: pick an eye to edit, then preview the active eye or both eyes moving independently. Eye tracking works on HTTPS / GitHub Pages.</div>
       <div id="stage" class="stage scene-sunny">
         <div class="scene-overlay"></div>
-        <div id="motionLayer" class="motion-layer">
-          <div id="floaterLayer" class="floater-layer"></div>
-          <svg id="drawLayer" class="draw-layer"></svg>
+        <div id="leftMotionLayer" class="motion-layer active-eye-layer" data-eye="left">
+          <div id="leftFloaterLayer" class="floater-layer"></div>
+          <svg id="leftDrawLayer" class="draw-layer"></svg>
+        </div>
+        <div id="rightMotionLayer" class="motion-layer" data-eye="right">
+          <div id="rightFloaterLayer" class="floater-layer"></div>
+          <svg id="rightDrawLayer" class="draw-layer"></svg>
         </div>
       </div>
       <video id="cameraFeed" playsinline autoplay muted></video>

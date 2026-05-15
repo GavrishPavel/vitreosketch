@@ -4,6 +4,12 @@ VitreoSketch is a small static web portal for people with vitreous floaters who 
 
 ## What it does
 
+- edit floaters per eye:
+  - left eye
+  - right eye
+- preview either:
+  - the active eye only
+  - both eyes moving independently
 - add common floater presets:
   - dot cluster
   - ring (inspired by Weiss ring descriptions)
@@ -11,7 +17,7 @@ VitreoSketch is a small static web portal for people with vitreous floaters who 
   - cobweb
   - smudge / cloud
 - draw your own floater paths directly on the stage
-- adjust contrast, blur, structure, scale
+- adjust contrast, blur, structure, scale, rotation
 - animate with:
   - random drift
   - camera-based eye tracking via MediaPipe FaceMesh
@@ -28,8 +34,8 @@ VitreoSketch is a small static web portal for people with vitreous floaters who 
 
 This project adapts the core idea from the private `eye-foaters` repo:
 
-- **random mode**: a floater container drifts toward periodically refreshed random targets around the center
-- **eye mode**: FaceMesh landmarks estimate iris horizontal offset plus eyelid-distance delta, then the floater layer follows with smoothing
+- **random mode**: each eye gets its own floater layer with its own independently refreshed random target
+- **eye mode**: FaceMesh landmarks estimate each iris horizontal offset plus a shared eyelid-distance delta, then the left and right floater layers follow separately with smoothing
 
 The implementation here is rewritten for a web page instead of a Chrome extension, but the motion model is intentionally similar.
 

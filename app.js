@@ -1,7 +1,4 @@
 const stage = document.getElementById('stage');
-const motionLayer = document.getElementById('motionLayer');
-const floaterLayer = document.getElementById('floaterLayer');
-const drawLayer = document.getElementById('drawLayer');
 const cameraFeed = document.getElementById('cameraFeed');
 
 const languageMeta = {
@@ -17,6 +14,13 @@ const translations = {
   en: {
     title: 'Floater visualizer & editor',
     lead: 'Compose an MVP simulation of common vitreous floater shapes, then animate them with gentle drift or camera-based eye tracking.',
+    eyeTitle: '0. Eye setup',
+    activeEye: 'Editing eye',
+    leftEye: 'Left eye',
+    rightEye: 'Right eye',
+    previewEyes: 'Preview eyes',
+    previewActiveOnly: 'Active eye only',
+    previewBothEyes: 'Both eyes',
     addTitle: '1. Add floaters',
     presetDot: 'Dot cluster',
     presetRing: 'Ring',
@@ -34,7 +38,7 @@ const translations = {
     selectionTitle: '3. Selected floater',
     selectionNone: 'Nothing selected',
     selectionActive: 'Selected',
-    selectionHint: 'Click a floater or drawing to edit it. Drag to reposition. Ctrl/Cmd+C copies floaters, Delete removes the selected object.',
+    selectionHint: 'Click a floater or drawing to edit it. Drag to reposition. Ctrl/Cmd+C copies the active-eye object, Delete removes the selected object.',
     contrast: 'Contrast',
     blur: 'Blur',
     structure: 'Structure',
@@ -65,11 +69,18 @@ const translations = {
     focusMode: 'Focus mode',
     exitFocusMode: 'Exit focus mode',
     fullscreen: 'Fullscreen',
-    stageHint: 'Tip: click a floater or drawing to edit it, drag it around, or use eye tracking on HTTPS / GitHub Pages.'
+    stageHint: 'Tip: pick an eye to edit, then preview the active eye or both eyes moving independently. Eye tracking works on HTTPS / GitHub Pages.'
   },
   ru: {
     title: 'Визуализатор и редактор помутнений',
     lead: 'Соберите свою сцену с типичными помутнениями стекловидного тела и запустите движение: случайный дрейф или слежение по взгляду через камеру.',
+    eyeTitle: '0. Настройка глаза',
+    activeEye: 'Редактируемый глаз',
+    leftEye: 'Левый глаз',
+    rightEye: 'Правый глаз',
+    previewEyes: 'Предпросмотр глаз',
+    previewActiveOnly: 'Только активный глаз',
+    previewBothEyes: 'Оба глаза',
     addTitle: '1. Добавьте помутнения',
     presetDot: 'Точки',
     presetRing: 'Кольцо',
@@ -87,7 +98,7 @@ const translations = {
     selectionTitle: '3. Выбранный объект',
     selectionNone: 'Ничего не выбрано',
     selectionActive: 'Выбрано',
-    selectionHint: 'Кликни по помутнению или рисунку, чтобы редактировать его. Перетаскивай мышкой. Ctrl/Cmd+C копирует помутнения, Delete удаляет выбранный объект.',
+    selectionHint: 'Кликни по помутнению или рисунку, чтобы редактировать его. Перетаскивай мышкой. Ctrl/Cmd+C копирует объект активного глаза, Delete удаляет выбранный объект.',
     contrast: 'Контрастность',
     blur: 'Размытие',
     structure: 'Структура',
@@ -118,11 +129,18 @@ const translations = {
     focusMode: 'Режим просмотра',
     exitFocusMode: 'Выйти из режима',
     fullscreen: 'На весь экран',
-    stageHint: 'Совет: кликни по помутнению или рисунку, чтобы редактировать его, перетаскивай его мышкой или включай слежение за глазами на HTTPS / GitHub Pages.'
+    stageHint: 'Совет: выбери глаз для редактирования, а затем смотри только его или оба глаза с независимым движением. Слежение за глазами работает на HTTPS / GitHub Pages.'
   },
   es: {
     title: 'Visualizador y editor de miodesopsias',
     lead: 'Compón una simulación MVP de formas comunes de miodesopsias vítreas y anímalas con una deriva suave o con seguimiento ocular mediante cámara.',
+    eyeTitle: '0. Configuración del ojo',
+    activeEye: 'Ojo en edición',
+    leftEye: 'Ojo izquierdo',
+    rightEye: 'Ojo derecho',
+    previewEyes: 'Vista de ojos',
+    previewActiveOnly: 'Solo ojo activo',
+    previewBothEyes: 'Ambos ojos',
     addTitle: '1. Añadir miodesopsias',
     presetDot: 'Grupo de puntos',
     presetRing: 'Anillo',
@@ -140,7 +158,7 @@ const translations = {
     selectionTitle: '3. Miodesopsia seleccionada',
     selectionNone: 'Nada seleccionado',
     selectionActive: 'Seleccionado',
-    selectionHint: 'Haz clic en una miodesopsia o dibujo para editarlo. Arrastra para recolocarlo. Ctrl/Cmd+C copia las miodesopsias y Delete elimina el objeto seleccionado.',
+    selectionHint: 'Haz clic en una miodesopsia o dibujo para editarlo. Arrastra para recolocarlo. Ctrl/Cmd+C copia el objeto del ojo activo y Delete elimina el objeto seleccionado.',
     contrast: 'Contraste',
     blur: 'Desenfoque',
     structure: 'Estructura',
@@ -171,11 +189,18 @@ const translations = {
     focusMode: 'Modo enfoque',
     exitFocusMode: 'Salir del modo enfoque',
     fullscreen: 'Pantalla completa',
-    stageHint: 'Consejo: haz clic en una miodesopsia o dibujo para editarlo, arrástralo o usa seguimiento ocular en HTTPS / GitHub Pages.'
+    stageHint: 'Consejo: elige qué ojo editar y luego visualiza solo ese ojo o ambos moviéndose de forma independiente. El seguimiento ocular funciona en HTTPS / GitHub Pages.'
   },
   pt: {
     title: 'Visualizador e editor de moscas volantes',
     lead: 'Monte uma simulação MVP de formas comuns de moscas volantes vítreas e depois anime tudo com deriva suave ou rastreamento ocular pela câmera.',
+    eyeTitle: '0. Configuração do olho',
+    activeEye: 'Olho em edição',
+    leftEye: 'Olho esquerdo',
+    rightEye: 'Olho direito',
+    previewEyes: 'Visualização dos olhos',
+    previewActiveOnly: 'Só olho ativo',
+    previewBothEyes: 'Ambos os olhos',
     addTitle: '1. Adicionar moscas volantes',
     presetDot: 'Grupo de pontos',
     presetRing: 'Anel',
@@ -193,7 +218,7 @@ const translations = {
     selectionTitle: '3. Mosca volante selecionada',
     selectionNone: 'Nada selecionado',
     selectionActive: 'Selecionado',
-    selectionHint: 'Clique em uma mosca volante ou desenho para editar. Arraste para reposicionar. Ctrl/Cmd+C copia as moscas volantes e Delete remove o objeto selecionado.',
+    selectionHint: 'Clique em uma mosca volante ou desenho para editar. Arraste para reposicionar. Ctrl/Cmd+C copia o objeto do olho ativo e Delete remove o objeto selecionado.',
     contrast: 'Contraste',
     blur: 'Desfoque',
     structure: 'Estrutura',
@@ -224,11 +249,18 @@ const translations = {
     focusMode: 'Modo foco',
     exitFocusMode: 'Sair do modo foco',
     fullscreen: 'Tela cheia',
-    stageHint: 'Dica: clique em uma mosca volante ou desenho para editar, arraste pela cena ou use rastreamento ocular em HTTPS / GitHub Pages.'
+    stageHint: 'Dica: escolha qual olho editar e depois visualize só ele ou ambos se movendo de forma independente. O rastreamento ocular funciona em HTTPS / GitHub Pages.'
   },
   zh: {
     title: '飞蚊症可视化与编辑器',
     lead: '创建一个常见玻璃体飞蚊形态的 MVP 模拟，并通过轻微漂移或基于摄像头的眼动追踪让它动起来。',
+    eyeTitle: '0. 眼别设置',
+    activeEye: '当前编辑眼睛',
+    leftEye: '左眼',
+    rightEye: '右眼',
+    previewEyes: '预览眼睛',
+    previewActiveOnly: '仅当前眼睛',
+    previewBothEyes: '双眼',
     addTitle: '1. 添加飞蚊',
     presetDot: '点状簇',
     presetRing: '环状',
@@ -246,7 +278,7 @@ const translations = {
     selectionTitle: '3. 已选飞蚊',
     selectionNone: '未选择任何对象',
     selectionActive: '已选择',
-    selectionHint: '点击飞蚊或绘图即可编辑，拖动可重新定位。Ctrl/Cmd+C 复制飞蚊，Delete 删除当前选中的对象。',
+    selectionHint: '点击飞蚊或绘图即可编辑，拖动可重新定位。Ctrl/Cmd+C 复制当前眼睛对象，Delete 删除当前选中的对象。',
     contrast: '对比度',
     blur: '模糊',
     structure: '结构',
@@ -277,11 +309,18 @@ const translations = {
     focusMode: '专注模式',
     exitFocusMode: '退出专注模式',
     fullscreen: '全屏',
-    stageHint: '提示：点击飞蚊或绘图进行编辑，可拖动位置，或在 HTTPS / GitHub Pages 上启用眼动追踪。'
+    stageHint: '提示：先选择要编辑的眼睛，再预览单眼或双眼独立运动。眼动追踪可在 HTTPS / GitHub Pages 上启用。'
   },
   ar: {
     title: 'أداة تصور وتحرير عوائم العين',
     lead: 'أنشئ محاكاة أولية لأشكال عوائم الجسم الزجاجي الشائعة، ثم حرّكها بانجراف لطيف أو بتتبع حركة العين عبر الكاميرا.',
+    eyeTitle: '0. إعداد العين',
+    activeEye: 'العين قيد التحرير',
+    leftEye: 'العين اليسرى',
+    rightEye: 'العين اليمنى',
+    previewEyes: 'معاينة العينين',
+    previewActiveOnly: 'العين النشطة فقط',
+    previewBothEyes: 'كلتا العينين',
     addTitle: '1. أضف العوائم',
     presetDot: 'مجموعة نقاط',
     presetRing: 'حلقة',
@@ -299,7 +338,7 @@ const translations = {
     selectionTitle: '3. العائمة المحددة',
     selectionNone: 'لا يوجد تحديد',
     selectionActive: 'محدد',
-    selectionHint: 'انقر على عائمة أو رسم لتعديله. اسحب لإعادة التموضع. Ctrl/Cmd+C ينسخ العوائم وDelete يحذف العنصر المحدد.',
+    selectionHint: 'انقر على عائمة أو رسم لتعديله. اسحب لإعادة التموضع. Ctrl/Cmd+C ينسخ عنصر العين النشطة وDelete يحذف العنصر المحدد.',
     contrast: 'التباين',
     blur: 'التمويه',
     structure: 'البنية',
@@ -330,14 +369,36 @@ const translations = {
     focusMode: 'وضع التركيز',
     exitFocusMode: 'الخروج من وضع التركيز',
     fullscreen: 'ملء الشاشة',
-    stageHint: 'نصيحة: انقر على العائمة أو الرسم لتعديله، واسحبه داخل المشهد، أو استخدم تتبع العين على HTTPS / GitHub Pages.'
+    stageHint: 'نصيحة: اختر العين التي تريد تحريرها، ثم عاين عينًا واحدة أو كلتا العينين مع حركة مستقلة. تتبع العين يعمل على HTTPS / GitHub Pages.'
   }
 };
 
+const EYES = ['left', 'right'];
+
+function createEyeState() {
+  return {
+    items: [],
+    drawings: [],
+    selection: { type: null, id: null },
+    randomTarget: { x: 0, y: 0 },
+    motionOffset: { x: 0, y: 0 },
+    motionTarget: { x: 0, y: 0 },
+    eyeTarget: { x: 0, y: 0 },
+    elements: {
+      motionLayer: null,
+      floaterLayer: null,
+      drawLayer: null
+    }
+  };
+}
+
 const state = {
-  items: [],
-  drawings: [],
-  selection: { type: null, id: null },
+  eyes: {
+    left: createEyeState(),
+    right: createEyeState()
+  },
+  activeEye: 'left',
+  previewMode: 'both',
   clipboard: null,
   drawingEnabled: false,
   drawingPath: null,
@@ -348,20 +409,16 @@ const state = {
   brushSize: 4,
   brushAlpha: 0.25,
   scene: 'sunny',
-  randomTarget: { x: 0, y: 0 },
-  motionOffset: { x: 0, y: 0 },
-  motionTarget: { x: 0, y: 0 },
   eye: {
     active: false,
     baseEyeLidDistance: null,
     faceMesh: null,
-    camera: null,
-    targetX: 0,
-    targetY: 0
+    camera: null
   },
   language: 'en',
-  previewOnly: false,
+  focusPreview: false,
   dragging: {
+    eye: null,
     type: null,
     id: null,
     pointerId: null,
@@ -393,18 +450,46 @@ const controls = {
   languageSelect: document.getElementById('languageSelect'),
   previewMode: document.getElementById('previewMode'),
   fullscreenMode: document.getElementById('fullscreenMode'),
-  selectionStatus: document.getElementById('selectionStatus') ,
+  selectionStatus: document.getElementById('selectionStatus'),
   duplicateSelected: document.getElementById('duplicateSelected'),
-  deleteSelected: document.getElementById('deleteSelected')
+  deleteSelected: document.getElementById('deleteSelected'),
+  activeEyeButtons: document.querySelectorAll('[data-eye-target]'),
+  previewEyeButtons: document.querySelectorAll('[data-preview-eyes]')
 };
 
 function rand(min, max) { return Math.random() * (max - min) + min; }
 function uid() { return `${Date.now()}-${Math.random().toString(16).slice(2)}`; }
 function stageRect() { return stage.getBoundingClientRect(); }
 function t(key) { return translations[state.language][key] || translations.en[key] || key; }
-function selectedItem() { return state.selection.type === 'item' ? state.items.find((item) => item.id === state.selection.id) || null : null; }
-function selectedDrawing() { return state.selection.type === 'drawing' ? state.drawings.find((drawing) => drawing.id === state.selection.id) || null : null; }
 function isRtlLanguage(lang) { return lang === 'ar'; }
+function eyeState(eye = state.activeEye) { return state.eyes[eye]; }
+function activeSelection() { return eyeState().selection; }
+function selectedItem(eye = state.activeEye) {
+  const currentEye = eyeState(eye);
+  return currentEye.selection.type === 'item' ? currentEye.items.find((item) => item.id === currentEye.selection.id) || null : null;
+}
+function selectedDrawing(eye = state.activeEye) {
+  const currentEye = eyeState(eye);
+  return currentEye.selection.type === 'drawing' ? currentEye.drawings.find((drawing) => drawing.id === currentEye.selection.id) || null : null;
+}
+function eyeKeyLabel(eye) { return eye === 'left' ? 'leftEye' : 'rightEye'; }
+
+function ensureStageLayers() {
+  EYES.forEach((eye) => {
+    let motionLayer = document.getElementById(`${eye}MotionLayer`);
+    if (!motionLayer) {
+      motionLayer = document.createElement('div');
+      motionLayer.id = `${eye}MotionLayer`;
+      motionLayer.className = 'motion-layer';
+      motionLayer.dataset.eye = eye;
+      motionLayer.innerHTML = `<div id="${eye}FloaterLayer" class="floater-layer"></div><svg id="${eye}DrawLayer" class="draw-layer"></svg>`;
+      stage.appendChild(motionLayer);
+    }
+    state.eyes[eye].elements.motionLayer = motionLayer;
+    state.eyes[eye].elements.floaterLayer = motionLayer.querySelector('.floater-layer');
+    state.eyes[eye].elements.drawLayer = motionLayer.querySelector('.draw-layer');
+  });
+}
 
 function makeItem(type, x = rand(20, 80), y = rand(20, 80), overrides = {}) {
   return {
@@ -419,13 +504,18 @@ function makeItem(type, x = rand(20, 80), y = rand(20, 80), overrides = {}) {
     blur: overrides.blur ?? 9,
     structure: overrides.structure ?? 0.45,
     driftSeed: rand(0, Math.PI * 2),
-    element: null
+    element: null,
+    eye: overrides.eye ?? state.activeEye
   };
 }
 
 function setViewBox() {
-  const rect = drawLayer.getBoundingClientRect();
-  drawLayer.setAttribute('viewBox', `0 0 ${Math.max(1, rect.width)} ${Math.max(1, rect.height)}`);
+  EYES.forEach((eye) => {
+    const drawLayer = state.eyes[eye].elements.drawLayer;
+    if (!drawLayer) return;
+    const rect = drawLayer.getBoundingClientRect();
+    drawLayer.setAttribute('viewBox', `0 0 ${Math.max(1, rect.width)} ${Math.max(1, rect.height)}`);
+  });
 }
 
 function populateLanguageSelect() {
@@ -444,9 +534,10 @@ function applyTranslations() {
     node.textContent = t(node.dataset.i18n);
   });
   controls.drawToggle.textContent = state.drawingEnabled ? t('drawingEnabled') : t('enableDrawing');
-  controls.previewMode.textContent = state.previewOnly ? t('exitFocusMode') : t('focusMode');
+  controls.previewMode.textContent = state.focusPreview ? t('exitFocusMode') : t('focusMode');
   controls.cameraStatus.textContent = state.eye.active ? t('cameraActive') : t('cameraOff');
   controls.languageSelect.value = state.language;
+  updateEyeUi();
   updateSelectionUi();
 }
 
@@ -515,7 +606,8 @@ function createDrawingFromPoint(point) {
     size: state.brushSize,
     alpha: state.brushAlpha,
     points: [{ x: 0, y: 0 }],
-    bounds: { minX: 0, minY: 0, width: 1, height: 1 }
+    bounds: { minX: 0, minY: 0, width: 1, height: 1 },
+    eye: state.activeEye
   };
 }
 
@@ -560,29 +652,37 @@ function drawingLabel() {
   return labels[state.language] || labels.en;
 }
 
-function renderItems() {
+function renderItems(eye = state.activeEye) {
+  const currentEye = eyeState(eye);
+  const floaterLayer = currentEye.elements.floaterLayer;
+  if (!floaterLayer) return;
   floaterLayer.innerHTML = '';
-  state.items.forEach((item) => {
+  currentEye.items.forEach((item) => {
     const el = document.createElement('div');
     el.className = 'floater-item';
     el.dataset.id = item.id;
+    el.dataset.eye = eye;
     el.style.left = `${item.x}%`;
     el.style.top = `${item.y}%`;
     el.innerHTML = svgForItem(item);
-    el.classList.toggle('selected', state.selection.type === 'item' && item.id === state.selection.id);
+    el.classList.toggle('selected', currentEye.selection.type === 'item' && item.id === currentEye.selection.id);
     el.addEventListener('pointerdown', startDragItem);
     item.element = el;
     floaterLayer.appendChild(el);
   });
-  applyItemTransforms(performance.now());
+  applyItemTransforms(eye, performance.now());
 }
 
-function renderDrawings() {
+function renderDrawings(eye = state.activeEye) {
+  const currentEye = eyeState(eye);
+  const drawLayer = currentEye.elements.drawLayer;
+  if (!drawLayer) return;
   drawLayer.innerHTML = '';
-  state.drawings.forEach((drawing) => {
+  currentEye.drawings.forEach((drawing) => {
     const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-    group.setAttribute('class', `drawing-group${state.selection.type === 'drawing' && state.selection.id === drawing.id ? ' selected' : ''}`);
+    group.setAttribute('class', `drawing-group${currentEye.selection.type === 'drawing' && currentEye.selection.id === drawing.id ? ' selected' : ''}`);
     group.dataset.id = drawing.id;
+    group.dataset.eye = eye;
     group.setAttribute('transform', `translate(${drawing.x} ${drawing.y}) rotate(${drawing.rotation}) scale(${drawing.scale})`);
 
     const hit = document.createElementNS('http://www.w3.org/2000/svg', 'path');
@@ -594,6 +694,7 @@ function renderDrawings() {
     hit.setAttribute('stroke-linejoin', 'round');
     hit.setAttribute('class', 'drawing-hit');
     hit.dataset.id = drawing.id;
+    hit.dataset.eye = eye;
     hit.addEventListener('pointerdown', startDragDrawing);
 
     const visible = document.createElementNS('http://www.w3.org/2000/svg', 'path');
@@ -606,7 +707,7 @@ function renderDrawings() {
     visible.style.filter = `blur(${drawing.blur}px)`;
     visible.style.pointerEvents = 'none';
 
-    if (state.selection.type === 'drawing' && state.selection.id === drawing.id) {
+    if (currentEye.selection.type === 'drawing' && currentEye.selection.id === drawing.id) {
       const outline = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
       const padding = Math.max(12, drawing.size * 2.5);
       outline.setAttribute('x', `${drawing.bounds.minX - padding}`);
@@ -628,6 +729,20 @@ function renderDrawings() {
   });
 }
 
+function updateEyeUi() {
+  controls.activeEyeButtons.forEach((button) => {
+    button.classList.toggle('active', button.dataset.eyeTarget === state.activeEye);
+  });
+  controls.previewEyeButtons.forEach((button) => {
+    button.classList.toggle('active', button.dataset.previewEyes === state.previewMode);
+  });
+  EYES.forEach((eye) => {
+    const isVisible = state.previewMode === 'both' || state.activeEye === eye;
+    state.eyes[eye].elements.motionLayer?.classList.toggle('hidden-eye', !isVisible);
+    state.eyes[eye].elements.motionLayer?.classList.toggle('active-eye-layer', state.activeEye === eye);
+  });
+}
+
 function updateSelectionUi() {
   const item = selectedItem();
   const drawing = selectedDrawing();
@@ -641,10 +756,11 @@ function updateSelectionUi() {
     return;
   }
 
+  const eyeLabel = t(eyeKeyLabel(state.activeEye));
   if (item) {
-    controls.selectionStatus.textContent = `${t('selectionActive')}: ${t(`preset${item.type.charAt(0).toUpperCase()}${item.type.slice(1)}`)}`;
+    controls.selectionStatus.textContent = `${t('selectionActive')}: ${eyeLabel} · ${t(`preset${item.type.charAt(0).toUpperCase()}${item.type.slice(1)}`)}`;
   } else {
-    controls.selectionStatus.textContent = `${t('selectionActive')}: ${drawingLabel()}`;
+    controls.selectionStatus.textContent = `${t('selectionActive')}: ${eyeLabel} · ${drawingLabel()}`;
   }
 
   controls.itemContrast.value = selected.contrast;
@@ -655,21 +771,39 @@ function updateSelectionUi() {
 }
 
 function refreshSelectionStyles() {
-  state.items.forEach((item) => item.element?.classList.toggle('selected', state.selection.type === 'item' && item.id === state.selection.id));
-  renderDrawings();
+  EYES.forEach((eye) => {
+    eyeState(eye).items.forEach((item) => item.element?.classList.toggle('selected', eyeState(eye).selection.type === 'item' && item.id === eyeState(eye).selection.id));
+    renderDrawings(eye);
+  });
 }
 
-function selectObject(type, id) {
-  state.selection = { type, id };
+function selectObject(type, id, eye = state.activeEye) {
+  state.activeEye = eye;
+  eyeState(eye).selection = { type, id };
+  updateEyeUi();
   refreshSelectionStyles();
   updateSelectionUi();
 }
 
+function clearSelection(eye = state.activeEye) {
+  eyeState(eye).selection = { type: null, id: null };
+  refreshSelectionStyles();
+  updateSelectionUi();
+}
+
+function switchActiveEye(eye) {
+  state.activeEye = eye;
+  updateEyeUi();
+  updateSelectionUi();
+  refreshSelectionStyles();
+}
+
 function addPreset(type) {
+  const currentEye = eyeState();
   const item = makeItem(type);
-  state.items.push(item);
-  renderItems();
-  selectObject('item', item.id);
+  currentEye.items.push(item);
+  renderItems(state.activeEye);
+  selectObject('item', item.id, state.activeEye);
 }
 
 function copySelected() {
@@ -696,6 +830,7 @@ function copySelected() {
 }
 
 function pasteSelected() {
+  const currentEye = eyeState();
   if (!state.clipboard) return;
   if (state.clipboard.objectType === 'drawing') {
     const rect = stageRect();
@@ -712,46 +847,51 @@ function pasteSelected() {
       size: state.clipboard.size,
       alpha: state.clipboard.alpha,
       points: state.clipboard.points.map((point) => ({ ...point })),
-      bounds: { minX: 0, minY: 0, width: 1, height: 1 }
+      bounds: { minX: 0, minY: 0, width: 1, height: 1 },
+      eye: state.activeEye
     };
     normalizeDrawing(drawing);
-    state.drawings.push(drawing);
-    renderDrawings();
-    selectObject('drawing', drawing.id);
+    currentEye.drawings.push(drawing);
+    renderDrawings(state.activeEye);
+    selectObject('drawing', drawing.id, state.activeEye);
     return;
   }
 
-  const item = makeItem(state.clipboard.type, 54, 54, { ...state.clipboard });
+  const item = makeItem(state.clipboard.type, 54, 54, { ...state.clipboard, eye: state.activeEye });
   item.x += rand(-6, 6);
   item.y += rand(-6, 6);
-  state.items.push(item);
-  renderItems();
-  selectObject('item', item.id);
+  currentEye.items.push(item);
+  renderItems(state.activeEye);
+  selectObject('item', item.id, state.activeEye);
 }
 
 function deleteSelected() {
-  if (state.selection.type === 'item') {
-    state.items = state.items.filter((item) => item.id !== state.selection.id);
-    renderItems();
-  } else if (state.selection.type === 'drawing') {
-    state.drawings = state.drawings.filter((drawing) => drawing.id !== state.selection.id);
-    renderDrawings();
+  const currentEye = eyeState();
+  if (currentEye.selection.type === 'item') {
+    currentEye.items = currentEye.items.filter((item) => item.id !== currentEye.selection.id);
+    renderItems(state.activeEye);
+  } else if (currentEye.selection.type === 'drawing') {
+    currentEye.drawings = currentEye.drawings.filter((drawing) => drawing.id !== currentEye.selection.id);
+    renderDrawings(state.activeEye);
   } else {
     return;
   }
-  state.selection = { type: null, id: null };
+  currentEye.selection = { type: null, id: null };
   updateSelectionUi();
 }
 
 function startDragItem(event) {
   if (state.drawingEnabled) return;
-  const item = state.items.find((entry) => entry.id === event.currentTarget.dataset.id);
+  const eye = event.currentTarget.dataset.eye;
+  const currentEye = eyeState(eye);
+  const item = currentEye.items.find((entry) => entry.id === event.currentTarget.dataset.id);
   if (!item) return;
-  selectObject('item', item.id);
+  selectObject('item', item.id, eye);
   const rect = stageRect();
   const currentX = rect.width * (item.x / 100);
   const currentY = rect.height * (item.y / 100);
   state.dragging = {
+    eye,
     type: 'item',
     id: item.id,
     pointerId: event.pointerId,
@@ -765,11 +905,14 @@ function startDragItem(event) {
 
 function startDragDrawing(event) {
   if (state.drawingEnabled) return;
-  const drawing = state.drawings.find((entry) => entry.id === event.currentTarget.dataset.id);
+  const eye = event.currentTarget.dataset.eye;
+  const currentEye = eyeState(eye);
+  const drawing = currentEye.drawings.find((entry) => entry.id === event.currentTarget.dataset.id);
   if (!drawing) return;
-  selectObject('drawing', drawing.id);
-  const point = pointerToStage(event);
+  selectObject('drawing', drawing.id, eye);
+  const point = pointerToStage(event, eye);
   state.dragging = {
+    eye,
     type: 'drawing',
     id: drawing.id,
     pointerId: event.pointerId,
@@ -781,8 +924,9 @@ function startDragDrawing(event) {
 
 function moveDragItem(event) {
   if (!state.dragging.id) return;
+  const currentEye = eyeState(state.dragging.eye);
   if (state.dragging.type === 'item') {
-    const item = state.items.find((entry) => entry.id === state.dragging.id);
+    const item = currentEye.items.find((entry) => entry.id === state.dragging.id);
     if (!item) return;
     const rect = stageRect();
     const xPx = Math.max(0, Math.min(rect.width, event.clientX - rect.left - state.dragging.dx));
@@ -796,60 +940,67 @@ function moveDragItem(event) {
     return;
   }
 
-  const drawing = state.drawings.find((entry) => entry.id === state.dragging.id);
+  const drawing = currentEye.drawings.find((entry) => entry.id === state.dragging.id);
   if (!drawing) return;
-  const point = pointerToStage(event);
+  const point = pointerToStage(event, state.dragging.eye);
   const rect = stageRect();
   drawing.x = Math.max(0, Math.min(rect.width, point.x - state.dragging.dx));
   drawing.y = Math.max(0, Math.min(rect.height, point.y - state.dragging.dy));
-  renderDrawings();
+  renderDrawings(state.dragging.eye);
 }
 
 function stopDragItem() {
   if (!state.dragging.id) return;
   if (state.dragging.type === 'item') {
-    const item = state.items.find((entry) => entry.id === state.dragging.id);
+    const item = eyeState(state.dragging.eye).items.find((entry) => entry.id === state.dragging.id);
     item?.element?.classList.remove('dragging');
   }
-  state.dragging = { type: null, id: null, pointerId: null, dx: 0, dy: 0 };
+  state.dragging = { eye: null, type: null, id: null, pointerId: null, dx: 0, dy: 0 };
 }
 
 function resetScene() {
-  state.items = [];
-  state.drawings = [];
-  state.selection = { type: null, id: null };
-  state.motionOffset = { x: 0, y: 0 };
-  state.motionTarget = { x: 0, y: 0 };
-  state.eye.targetX = 0;
-  state.eye.targetY = 0;
-  motionLayer.style.transform = 'translate(0px, 0px)';
-  renderItems();
-  renderDrawings();
+  EYES.forEach((eye) => {
+    state.eyes[eye].items = [];
+    state.eyes[eye].drawings = [];
+    state.eyes[eye].selection = { type: null, id: null };
+    state.eyes[eye].randomTarget = { x: 0, y: 0 };
+    state.eyes[eye].motionOffset = { x: 0, y: 0 };
+    state.eyes[eye].motionTarget = { x: 0, y: 0 };
+    state.eyes[eye].eyeTarget = { x: 0, y: 0 };
+    state.eyes[eye].elements.motionLayer.style.transform = 'translate(0px, 0px)';
+    renderItems(eye);
+    renderDrawings(eye);
+  });
   updateSelectionUi();
 }
 
 function loadDemoScene() {
-  state.items = [
-    makeItem('ring', 34, 42),
-    makeItem('thread', 58, 56),
-    makeItem('dot', 44, 62),
-    makeItem('cobweb', 68, 40),
-    makeItem('cloud', 28, 62),
-    makeItem('smudge', 54, 33)
+  state.eyes.left.items = [
+    makeItem('ring', 32, 40, { eye: 'left' }),
+    makeItem('thread', 54, 56, { eye: 'left' }),
+    makeItem('dot', 43, 65, { eye: 'left' })
   ];
-  renderItems();
-  selectObject('item', state.items[0]?.id || null);
+  state.eyes.right.items = [
+    makeItem('cobweb', 64, 39, { eye: 'right' }),
+    makeItem('cloud', 33, 61, { eye: 'right' }),
+    makeItem('smudge', 57, 35, { eye: 'right' })
+  ];
+  state.eyes.left.drawings = [];
+  state.eyes.right.drawings = [];
+  EYES.forEach((eye) => renderItems(eye));
+  selectObject('item', state.eyes.left.items[0]?.id || null, 'left');
 }
 
-function pickRandomTarget() {
+function pickRandomTarget(eye = state.activeEye) {
+  const currentEye = eyeState(eye);
   const rect = stageRect();
   const maxOffset = Math.min(220, Math.min(rect.width, rect.height) * 0.16) * state.motionIntensity;
-  state.randomTarget.x = rand(-maxOffset, maxOffset);
-  state.randomTarget.y = rand(-maxOffset, maxOffset);
+  currentEye.randomTarget.x = rand(-maxOffset, maxOffset);
+  currentEye.randomTarget.y = rand(-maxOffset, maxOffset);
 }
 
-function applyItemTransforms(now) {
-  state.items.forEach((item, index) => {
+function applyItemTransforms(eye, now) {
+  eyeState(eye).items.forEach((item, index) => {
     if (!item.element) return;
     const wobble = Math.sin(now / 1200 + item.driftSeed + index) * 7 * (state.motionRunning ? state.motionIntensity : 0);
     const lift = Math.cos(now / 1400 + item.driftSeed * 1.6) * 6 * (state.motionRunning ? state.motionIntensity : 0);
@@ -859,31 +1010,37 @@ function applyItemTransforms(now) {
 }
 
 function animate(now) {
-  if (state.motionRunning) {
-    if (state.motionMode === 'random') {
-      state.motionTarget.x += (state.randomTarget.x - state.motionTarget.x) * 0.05;
-      state.motionTarget.y += (state.randomTarget.y - state.motionTarget.y) * 0.05;
+  EYES.forEach((eye) => {
+    const currentEye = eyeState(eye);
+    if (state.motionRunning) {
+      if (state.motionMode === 'random') {
+        currentEye.motionTarget.x += (currentEye.randomTarget.x - currentEye.motionTarget.x) * 0.05;
+        currentEye.motionTarget.y += (currentEye.randomTarget.y - currentEye.motionTarget.y) * 0.05;
+      } else {
+        currentEye.motionTarget.x += (currentEye.eyeTarget.x - currentEye.motionTarget.x) * 0.14;
+        currentEye.motionTarget.y += (currentEye.eyeTarget.y - currentEye.motionTarget.y) * 0.14;
+      }
     } else {
-      state.motionTarget.x += (state.eye.targetX - state.motionTarget.x) * 0.14;
-      state.motionTarget.y += (state.eye.targetY - state.motionTarget.y) * 0.14;
+      currentEye.motionTarget.x += (0 - currentEye.motionTarget.x) * 0.15;
+      currentEye.motionTarget.y += (0 - currentEye.motionTarget.y) * 0.15;
     }
-  } else {
-    state.motionTarget.x += (0 - state.motionTarget.x) * 0.15;
-    state.motionTarget.y += (0 - state.motionTarget.y) * 0.15;
-  }
 
-  state.motionOffset.x += (state.motionTarget.x - state.motionOffset.x) * 0.18;
-  state.motionOffset.y += (state.motionTarget.y - state.motionOffset.y) * 0.18;
-  motionLayer.style.transform = `translate(${state.motionOffset.x}px, ${state.motionOffset.y}px)`;
-  applyItemTransforms(now);
+    currentEye.motionOffset.x += (currentEye.motionTarget.x - currentEye.motionOffset.x) * 0.18;
+    currentEye.motionOffset.y += (currentEye.motionTarget.y - currentEye.motionOffset.y) * 0.18;
+    currentEye.elements.motionLayer.style.transform = `translate(${currentEye.motionOffset.x}px, ${currentEye.motionOffset.y}px)`;
+    applyItemTransforms(eye, now);
+  });
   requestAnimationFrame(animate);
 }
 
 setInterval(() => {
-  if (state.motionMode === 'random' && state.motionRunning) pickRandomTarget();
+  if (state.motionMode === 'random' && state.motionRunning) {
+    EYES.forEach((eye) => pickRandomTarget(eye));
+  }
 }, 2800);
 
-function pointerToStage(event) {
+function pointerToStage(event, eye = state.activeEye) {
+  const drawLayer = eyeState(eye).elements.drawLayer;
   const point = drawLayer.createSVGPoint();
   point.x = event.clientX;
   point.y = event.clientY;
@@ -896,40 +1053,51 @@ function pointerToStage(event) {
   return { x: local.x, y: local.y };
 }
 
+function stageEyeFromEvent(event) {
+  const explicit = event.target.closest('[data-eye]')?.dataset.eye;
+  if (explicit) return explicit;
+  return state.activeEye;
+}
+
 function startDrawing(event) {
   const clickedInteractive = event.target.closest('.floater-item, .drawing-hit');
+  const eye = stageEyeFromEvent(event);
   if (!state.drawingEnabled) {
-    if (!clickedInteractive) selectObject(null, null);
+    if (!clickedInteractive) {
+      switchActiveEye(eye);
+      clearSelection(eye);
+    }
     return;
   }
   if (clickedInteractive) return;
 
-  const point = pointerToStage(event);
+  switchActiveEye(eye);
+  const point = pointerToStage(event, eye);
   state.lastPointer = point;
   const drawing = createDrawingFromPoint(point);
-  state.drawings.push(drawing);
+  eyeState(eye).drawings.push(drawing);
   state.drawingPath = drawing;
-  renderDrawings();
-  selectObject('drawing', drawing.id);
+  renderDrawings(eye);
+  selectObject('drawing', drawing.id, eye);
 }
 
 function moveDrawing(event) {
   if (!state.drawingEnabled || !state.drawingPath) return;
-  const point = pointerToStage(event);
+  const point = pointerToStage(event, state.drawingPath.eye);
   const last = state.lastPointer;
   if (!last) return;
   const distance = Math.hypot(point.x - last.x, point.y - last.y);
   if (distance < 1.5) return;
   addPointToDrawing(state.drawingPath, point);
   state.lastPointer = point;
-  renderDrawings();
+  renderDrawings(state.drawingPath.eye);
 }
 
 function stopDrawing() {
   if (state.drawingPath?.points.length === 1) {
     state.drawingPath.points.push({ x: 0.5, y: 0.5 });
     normalizeDrawing(state.drawingPath);
-    renderDrawings();
+    renderDrawings(state.drawingPath.eye);
   }
   state.drawingPath = null;
   state.lastPointer = null;
@@ -996,19 +1164,21 @@ function onFaceResults(results) {
   const rightEyeWidth = Math.max(0.0001, landmarks[263].x - landmarks[362].x);
   const leftIrisOffsetX = (leftIris.x - landmarks[33].x) / leftEyeWidth - 0.5;
   const rightIrisOffsetX = (rightIris.x - landmarks[362].x) / rightEyeWidth - 0.5;
-  const irisOffsetX = -(leftIrisOffsetX + rightIrisOffsetX) / 2;
 
   const maxX = rect.width * 0.18 * state.motionIntensity;
   const maxY = rect.height * 0.16 * state.motionIntensity;
-  state.eye.targetX = Math.max(-maxX, Math.min(maxX, irisOffsetX * rect.width * 1.2 * state.motionIntensity));
-  state.eye.targetY = Math.max(-maxY, Math.min(maxY, eyeLidDelta * rect.height * 120 * state.motionIntensity));
+
+  state.eyes.left.eyeTarget.x = Math.max(-maxX, Math.min(maxX, -leftIrisOffsetX * rect.width * 1.15 * state.motionIntensity));
+  state.eyes.right.eyeTarget.x = Math.max(-maxX, Math.min(maxX, -rightIrisOffsetX * rect.width * 1.15 * state.motionIntensity));
+  state.eyes.left.eyeTarget.y = Math.max(-maxY, Math.min(maxY, eyeLidDelta * rect.height * 120 * state.motionIntensity));
+  state.eyes.right.eyeTarget.y = Math.max(-maxY, Math.min(maxY, eyeLidDelta * rect.height * 120 * state.motionIntensity));
 }
 
 function rerenderSelectedItem() {
   const item = selectedItem();
   if (!item?.element) return;
   item.element.innerHTML = svgForItem(item);
-  applyItemTransforms(performance.now());
+  applyItemTransforms(state.activeEye, performance.now());
 }
 
 function updateSelectedObject(prop, value) {
@@ -1022,17 +1192,21 @@ function updateSelectedObject(prop, value) {
   const drawing = selectedDrawing();
   if (!drawing) return;
   drawing[prop] = value;
-  renderDrawings();
+  renderDrawings(state.activeEye);
   updateSelectionUi();
 }
 
 presetButtons.forEach((button) => button.addEventListener('click', () => addPreset(button.dataset.preset)));
 sceneButtons.forEach((button) => button.addEventListener('click', () => { state.scene = button.dataset.scene; applyScene(); }));
 motionInputs.forEach((input) => input.addEventListener('change', async () => {
+  if (!input.checked) return;
   state.motionMode = input.value;
   if (state.motionMode === 'eye') await enableCamera();
 }));
-controls.motionIntensity.addEventListener('input', (e) => { state.motionIntensity = Number(e.target.value); pickRandomTarget(); });
+controls.motionIntensity.addEventListener('input', (e) => {
+  state.motionIntensity = Number(e.target.value);
+  EYES.forEach((eye) => pickRandomTarget(eye));
+});
 controls.itemContrast.addEventListener('input', (e) => updateSelectedObject('contrast', Number(e.target.value)));
 controls.itemBlur.addEventListener('input', (e) => updateSelectedObject('blur', Number(e.target.value)));
 controls.itemStructure.addEventListener('input', (e) => updateSelectedObject('structure', Number(e.target.value)));
@@ -1047,9 +1221,9 @@ controls.drawToggle.addEventListener('click', () => {
   stage.style.cursor = state.drawingEnabled ? 'crosshair' : 'default';
 });
 controls.clearDrawings.addEventListener('click', () => {
-  state.drawings = [];
-  if (state.selection.type === 'drawing') state.selection = { type: null, id: null };
-  renderDrawings();
+  eyeState().drawings = [];
+  if (activeSelection().type === 'drawing') eyeState().selection = { type: null, id: null };
+  renderDrawings(state.activeEye);
   updateSelectionUi();
 });
 controls.resetScene.addEventListener('click', resetScene);
@@ -1057,7 +1231,7 @@ controls.demoScene.addEventListener('click', loadDemoScene);
 controls.startMotion.addEventListener('click', () => {
   state.motionRunning = true;
   if (state.motionMode === 'eye') enableCamera();
-  pickRandomTarget();
+  EYES.forEach((eye) => pickRandomTarget(eye));
 });
 controls.stopMotion.addEventListener('click', () => {
   state.motionRunning = false;
@@ -1070,9 +1244,9 @@ controls.languageSelect.addEventListener('change', (event) => {
   applyTranslations();
 });
 controls.previewMode.addEventListener('click', () => {
-  state.previewOnly = !state.previewOnly;
-  document.body.classList.toggle('preview-only', state.previewOnly);
-  controls.previewMode.textContent = state.previewOnly ? t('exitFocusMode') : t('focusMode');
+  state.focusPreview = !state.focusPreview;
+  document.body.classList.toggle('preview-only', state.focusPreview);
+  controls.previewMode.textContent = state.focusPreview ? t('exitFocusMode') : t('focusMode');
 });
 controls.fullscreenMode.addEventListener('click', async () => {
   try {
@@ -1082,6 +1256,11 @@ controls.fullscreenMode.addEventListener('click', async () => {
     console.error(error);
   }
 });
+controls.activeEyeButtons.forEach((button) => button.addEventListener('click', () => switchActiveEye(button.dataset.eyeTarget)));
+controls.previewEyeButtons.forEach((button) => button.addEventListener('click', () => {
+  state.previewMode = button.dataset.previewEyes;
+  updateEyeUi();
+}));
 
 document.addEventListener('fullscreenchange', () => setTimeout(setViewBox, 50));
 stage.addEventListener('pointerdown', startDrawing);
@@ -1107,11 +1286,15 @@ window.addEventListener('keydown', (event) => {
   }
 });
 
+ensureStageLayers();
 populateLanguageSelect();
 setViewBox();
-pickRandomTarget();
-renderItems();
-renderDrawings();
+EYES.forEach((eye) => pickRandomTarget(eye));
+EYES.forEach((eye) => {
+  renderItems(eye);
+  renderDrawings(eye);
+});
 applyScene();
 applyTranslations();
+updateEyeUi();
 requestAnimationFrame(animate);
