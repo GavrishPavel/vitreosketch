@@ -21,8 +21,6 @@ VitreoSketch is a small static web portal for people with vitreous floaters who 
 - animate with:
   - random drift
   - camera-based eye tracking via MediaPipe FaceMesh
-- subtle pseudo-refraction behind floater shapes using masked `backdrop-filter` blur plus a small lens highlight/shadow layer
-- user control for background refraction strength
 - runs as a plain static site, so it is easy to host on GitHub Pages
 - includes built-in UI localization for:
   - English
