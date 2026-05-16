@@ -93,7 +93,7 @@
           <label class="motion-mode-label eye-tracking-label">
             <input type="radio" name="motionMode" value="eye" />
             <span data-i18n="eyeTracking">Eye tracking</span>
-            <button type="button" id="eyeTrackingInfoButton" class="info-button ghost" aria-label="Eye tracking info" aria-expanded="false" aria-controls="eyeTrackingInfoPopover">i</button>
+            <button type="button" id="eyeTrackingInfoButton" class="info-button ghost" aria-label="Eye tracking info" aria-expanded="false" aria-controls="eyeTrackingInfoPopover">?</button>
           </label>
         </div>
         <div id="eyeTrackingInfoPopover" class="info-popover" hidden>
@@ -109,9 +109,9 @@
       <section>
         <h2 data-i18n="sceneTitle">6. Scene</h2>
         <div class="preset-grid scene-grid">
+          <button data-scene="plain" data-i18n="scenePlain">No background</button>
           <button data-scene="beach" data-i18n="sceneBeach">Beach</button>
           <button data-scene="snow" data-i18n="sceneSnow">Snow</button>
-          <button data-scene="plain" data-i18n="scenePlain">No background</button>
         </div>
         <div class="toggle-row wrap">
           <button id="resetScene" class="ghost" data-i18n="resetScene">Reset scene</button>
@@ -129,7 +129,7 @@
         </div>
       </div>
       <div class="stage-subhint hint" data-i18n="stageHint">Tip: pick an eye to edit, then preview the active eye or both eyes moving independently. Eye tracking works on HTTPS / GitHub Pages.</div>
-      <div id="stage" class="stage scene-beach">
+      <div id="stage" class="stage scene-plain">
         <div class="scene-overlay"></div>
         <div id="leftMotionLayer" class="motion-layer active-eye-layer" data-eye="left">
           <div id="leftFloaterLayer" class="floater-layer"></div>

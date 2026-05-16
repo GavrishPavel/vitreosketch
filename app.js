@@ -363,7 +363,7 @@ const translations = {
 
 const EYES = ['left', 'right'];
 function createEyeState() { return { items: [], drawings: [], selection: { type: null, id: null }, randomTarget: { x: 0, y: 0 }, motionOffset: { x: 0, y: 0 }, motionTarget: { x: 0, y: 0 }, eyeTarget: { x: 0, y: 0 }, elements: { motionLayer: null, floaterLayer: null, drawLayer: null } }; }
-const state = { eyes: { left: createEyeState(), right: createEyeState() }, activeEye: 'left', previewMode: 'both', clipboard: null, drawingEnabled: false, drawingPath: null, lastPointer: null, motionMode: 'random', motionIntensity: 0.8, motionRunning: true, brushSize: 4, brushAlpha: 0.25, scene: 'beach', eye: { active: false, baseEyeLidDistance: null, faceMesh: null, camera: null, stream: null }, language: 'en', focusPreview: false, dragging: { eye: null, type: null, id: null, pointerId: null, dx: 0, dy: 0 } };
+const state = { eyes: { left: createEyeState(), right: createEyeState() }, activeEye: 'left', previewMode: 'both', clipboard: null, drawingEnabled: false, drawingPath: null, lastPointer: null, motionMode: 'random', motionIntensity: 0.8, motionRunning: true, brushSize: 4, brushAlpha: 0.25, scene: 'plain', eye: { active: false, baseEyeLidDistance: null, faceMesh: null, camera: null, stream: null }, language: 'en', focusPreview: false, dragging: { eye: null, type: null, id: null, pointerId: null, dx: 0, dy: 0 } };
 
 const presetButtons = document.querySelectorAll('[data-preset]');
 const sceneButtons = document.querySelectorAll('[data-scene]');
@@ -388,7 +388,13 @@ function setViewBox() { EYES.forEach((eye) => { const drawLayer = state.eyes[eye
 function populateLanguageSelect() { controls.languageSelect.innerHTML = Object.entries(languageMeta).map(([code, meta]) => `<option value="${code}">${meta.label}</option>`).join(''); controls.languageSelect.value = state.language; }
 
 function updateMotionButton() { controls.toggleMotion.textContent = state.motionRunning ? t('stopMotion') : t('startMotion'); controls.toggleMotion.classList.toggle('ghost', !state.motionRunning); }
-function updateCameraStatus() { controls.cameraStatus.textContent = state.eye.active ? t('cameraActive') : t('cameraOff'); }
+function updateCameraStatus() {
+  if (state.motionMode === 'eye' && !state.eye.active && controls.cameraStatus.dataset.errorKey) {
+    controls.cameraStatus.textContent = t(controls.cameraStatus.dataset.errorKey);
+    return;
+  }
+  controls.cameraStatus.textContent = state.eye.active ? t('cameraActive') : t('cameraOff');
+}
 
 function applyTranslations() {
   document.documentElement.lang = state.language;
@@ -467,6 +473,7 @@ async function disableCamera() {
     state.eye.stream.getTracks().forEach((track) => track.stop());
   }
   cameraFeed.srcObject = null;
+  delete controls.cameraStatus.dataset.errorKey;
   state.eye.active = false;
   state.eye.baseEyeLidDistance = null;
   state.eye.faceMesh = null;
@@ -477,20 +484,29 @@ async function disableCamera() {
 }
 
 async function enableCamera() {
-  if (!window.location.protocol.startsWith('https') && !window.location.hostname.includes('localhost')) { controls.cameraStatus.textContent = t('cameraNeedsHttps'); return false; }
-  if (state.eye.active) { updateCameraStatus(); return true; }
+  if (!window.location.protocol.startsWith('https') && !window.location.hostname.includes('localhost')) { controls.cameraStatus.dataset.errorKey = 'cameraNeedsHttps'; updateCameraStatus(); return false; }
+  if (state.eye.active) { delete controls.cameraStatus.dataset.errorKey; updateCameraStatus(); return true; }
   const faceMesh = new FaceMesh({ locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}` });
   faceMesh.setOptions({ maxNumFaces: 1, refineLandmarks: true, minDetectionConfidence: 0.45, minTrackingConfidence: 0.45 });
   faceMesh.onResults(onFaceResults);
   const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: 480, height: 360 }, audio: false }).catch((error) => { console.error(error); return null; });
-  if (!stream) { controls.cameraStatus.textContent = t('cameraPermissionFailed'); return false; }
+  if (!stream) { controls.cameraStatus.dataset.errorKey = 'cameraPermissionFailed'; updateCameraStatus(); return false; }
   cameraFeed.srcObject = stream; await cameraFeed.play().catch(() => {});
   const camera = new Camera(cameraFeed, { onFrame: async () => { await faceMesh.send({ image: cameraFeed }); }, width: 480, height: 360 });
-  try { await camera.start(); state.eye.faceMesh = faceMesh; state.eye.camera = camera; state.eye.stream = stream; state.eye.active = true; state.eye.baseEyeLidDistance = null; updateCameraStatus(); return true; } catch (error) { console.error(error); stream.getTracks().forEach((track) => track.stop()); cameraFeed.srcObject = null; controls.cameraStatus.textContent = t('cameraPermissionFailed'); return false; }
+  try { await camera.start(); state.eye.faceMesh = faceMesh; state.eye.camera = camera; state.eye.stream = stream; state.eye.active = true; state.eye.baseEyeLidDistance = null; delete controls.cameraStatus.dataset.errorKey; updateCameraStatus(); return true; } catch (error) { console.error(error); stream.getTracks().forEach((track) => track.stop()); cameraFeed.srcObject = null; controls.cameraStatus.dataset.errorKey = 'cameraPermissionFailed'; updateCameraStatus(); return false; }
 }
 
 async function syncMotionModeSideEffects() {
-  if (state.motionMode === 'eye') { await enableCamera(); } else { await disableCamera(); }
+  if (state.motionMode === 'eye') {
+    const enabled = await enableCamera();
+    if (!enabled) {
+      state.motionRunning = false;
+    }
+  } else {
+    await disableCamera();
+  }
+  updateMotionButton();
+  updateCameraStatus();
 }
 
 function onFaceResults(results) {
@@ -504,7 +520,12 @@ function toggleInfoPopover() { const willOpen = controls.eyeTrackingInfoPopover.
 
 presetButtons.forEach((button) => button.addEventListener('click', () => addPreset(button.dataset.preset)));
 sceneButtons.forEach((button) => button.addEventListener('click', () => { state.scene = button.dataset.scene; applyScene(); }));
-motionInputs.forEach((input) => input.addEventListener('change', async () => { if (!input.checked) return; state.motionMode = input.value; await syncMotionModeSideEffects(); }));
+motionInputs.forEach((input) => input.addEventListener('change', async () => {
+  if (!input.checked) return;
+  state.motionMode = input.value;
+  if (state.motionMode === 'eye') state.motionRunning = true;
+  await syncMotionModeSideEffects();
+}));
 controls.motionIntensity.addEventListener('input', (e) => { state.motionIntensity = Number(e.target.value); pickRandomTarget(); });
 controls.itemContrast.addEventListener('input', (e) => updateSelectedObject('contrast', Number(e.target.value)));
 controls.itemBlur.addEventListener('input', (e) => updateSelectedObject('blur', Number(e.target.value)));
@@ -517,7 +538,22 @@ controls.drawToggle.addEventListener('click', () => { state.drawingEnabled = !st
 controls.clearDrawings.addEventListener('click', () => { eyeState().drawings = []; if (activeSelection().type === 'drawing') eyeState().selection = { type: null, id: null }; renderDrawings(state.activeEye); updateSelectionUi(); });
 controls.resetScene.addEventListener('click', resetScene);
 controls.demoScene.addEventListener('click', loadDemoScene);
-controls.toggleMotion.addEventListener('click', async () => { state.motionRunning = !state.motionRunning; if (state.motionRunning) { if (state.motionMode === 'eye') await enableCamera(); pickRandomTarget(); } updateMotionButton(); });
+controls.toggleMotion.addEventListener('click', async () => {
+  state.motionRunning = !state.motionRunning;
+  if (state.motionRunning) {
+    if (state.motionMode === 'eye') {
+      const enabled = await enableCamera();
+      if (!enabled) state.motionRunning = false;
+    } else {
+      await disableCamera();
+      pickRandomTarget();
+    }
+  } else if (state.motionMode === 'eye') {
+    await disableCamera();
+  }
+  updateMotionButton();
+  updateCameraStatus();
+});
 controls.duplicateSelected.addEventListener('click', () => { copySelected(); pasteSelected(); });
 controls.deleteSelected.addEventListener('click', deleteSelected);
 controls.languageSelect.addEventListener('change', (event) => { state.language = event.target.value; applyTranslations(); });
