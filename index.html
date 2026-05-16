@@ -25,7 +25,7 @@
       </div>
 
       <section>
-        <h2 data-i18n="eyeTitle">0. Eye setup</h2>
+        <h2 data-i18n="eyeTitle">1. Eye setup</h2>
         <div class="field-row compact stack-mobile">
           <label>
             <span data-i18n="activeEye">Editing eye</span>
@@ -45,7 +45,7 @@
       </section>
 
       <section>
-        <h2 data-i18n="addTitle">1. Add floaters</h2>
+        <h2 data-i18n="addTitle">2. Add floaters</h2>
         <div class="preset-grid">
           <button data-preset="dot" data-i18n="presetDot">Dot cluster</button>
           <button data-preset="ring" data-i18n="presetRing">Ring</button>
@@ -58,7 +58,7 @@
       </section>
 
       <section>
-        <h2 data-i18n="drawTitle">2. Draw your own</h2>
+        <h2 data-i18n="drawTitle">3. Draw your own</h2>
         <div class="field-row compact">
           <label><span data-i18n="brushSize">Brush size</span> <input id="brushSize" type="range" min="1" max="16" value="4" /></label>
           <label><span data-i18n="brushAlpha">Stroke alpha</span> <input id="brushAlpha" type="range" min="0.05" max="0.8" step="0.05" value="0.25" /></label>
@@ -71,7 +71,7 @@
 
       <section>
         <div class="section-head">
-          <h2 data-i18n="selectionTitle">3. Selected floater</h2>
+          <h2 data-i18n="selectionTitle">4. Selected floater</h2>
           <span id="selectionStatus" class="hint" data-i18n="selectionNone">Nothing selected</span>
         </div>
         <label><span data-i18n="contrast">Contrast</span> <input id="itemContrast" type="range" min="0.15" max="1" step="0.05" value="0.55" /></label>
@@ -87,29 +87,30 @@
       </section>
 
       <section>
-        <h2 data-i18n="motionTitle">4. Motion</h2>
+        <h2 data-i18n="motionTitle">5. Motion</h2>
         <div class="mode-grid">
           <label><input type="radio" name="motionMode" value="random" checked /> <span data-i18n="randomDrift">Random drift</span></label>
-          <label><input type="radio" name="motionMode" value="eye" /> <span data-i18n="eyeTracking">Eye tracking</span></label>
+          <label class="motion-mode-label eye-tracking-label">
+            <input type="radio" name="motionMode" value="eye" />
+            <span data-i18n="eyeTracking">Eye tracking</span>
+            <button type="button" id="eyeTrackingInfoButton" class="info-button ghost" aria-label="Eye tracking info" aria-expanded="false" aria-controls="eyeTrackingInfoPopover">i</button>
+          </label>
+        </div>
+        <div id="eyeTrackingInfoPopover" class="info-popover" hidden>
+          <p data-i18n="eyeTrackingInfo">Eye tracking uses your front camera locally in the browser. It estimates iris movement and eyelid motion to shift floaters in the opposite direction. No video leaves your device.</p>
         </div>
         <label><span data-i18n="motionIntensity">Motion intensity</span> <input id="motionIntensity" type="range" min="0.2" max="1.5" step="0.05" value="0.8" /></label>
-        <div class="toggle-row wrap">
-          <button id="startMotion" data-i18n="startMotion">Start movement</button>
-          <button id="stopMotion" class="ghost" data-i18n="stopMotion">Stop movement</button>
-        </div>
-        <div class="toggle-row wrap">
-          <button id="startCamera" class="ghost" data-i18n="enableCamera">Enable camera</button>
+        <div class="toggle-row wrap align-center">
+          <button id="toggleMotion" data-i18n="stopMotion">Stop movement</button>
           <span id="cameraStatus" class="hint" data-i18n="cameraOff">Camera off</span>
         </div>
       </section>
 
       <section>
-        <h2 data-i18n="sceneTitle">5. Scene</h2>
+        <h2 data-i18n="sceneTitle">6. Scene</h2>
         <div class="preset-grid scene-grid">
-          <button data-scene="sunny" data-i18n="sceneSunny">Sunny sky</button>
-          <button data-scene="beach" data-i18n="sceneBeach">White sand beach</button>
-          <button data-scene="snowy" data-i18n="sceneSnowy">Snowy day</button>
-          <button data-scene="cloudy" data-i18n="sceneCloudy">Cloudy sky</button>
+          <button data-scene="beach" data-i18n="sceneBeach">Beach</button>
+          <button data-scene="snow" data-i18n="sceneSnow">Snow</button>
           <button data-scene="plain" data-i18n="scenePlain">No background</button>
         </div>
         <div class="toggle-row wrap">
@@ -128,7 +129,7 @@
         </div>
       </div>
       <div class="stage-subhint hint" data-i18n="stageHint">Tip: pick an eye to edit, then preview the active eye or both eyes moving independently. Eye tracking works on HTTPS / GitHub Pages.</div>
-      <div id="stage" class="stage scene-sunny">
+      <div id="stage" class="stage scene-beach">
         <div class="scene-overlay"></div>
         <div id="leftMotionLayer" class="motion-layer active-eye-layer" data-eye="left">
           <div id="leftFloaterLayer" class="floater-layer"></div>
