@@ -249,6 +249,7 @@ body.preview-only .app-shell { grid-template-columns: 1fr; }
   cursor: grab;
   pointer-events: auto;
   touch-action: none;
+  overflow: visible;
   z-index: 2;
 }
 .floater-item.dragging { cursor: grabbing; z-index: 30; }

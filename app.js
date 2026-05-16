@@ -498,7 +498,7 @@ function makeItem(type, x = rand(20, 80), y = rand(20, 80), overrides = {}) {
     x,
     y,
     rotation: overrides.rotation ?? rand(-20, 20),
-    scale: overrides.scale ?? rand(0.85, 1.2),
+    scale: overrides.scale ?? rand(0.35, 2.6),
     density: overrides.density ?? rand(0.7, 1.2),
     contrast: overrides.contrast ?? 0.55,
     blur: overrides.blur ?? 9,
@@ -552,7 +552,7 @@ function svgForItem(item) {
   const strokeOpacity = Math.max(0.08, item.contrast * 0.45).toFixed(2);
   const strokeWidth = (1.2 + item.structure * 3.4).toFixed(2);
   const blur = item.blur;
-  const defs = `<defs><filter id="b-${item.id}"><feGaussianBlur stdDeviation="${blur}" /></filter></defs>`;
+  const defs = `<defs><filter id="b-${item.id}" x="-45%" y="-45%" width="190%" height="190%" filterUnits="objectBoundingBox"><feGaussianBlur stdDeviation="${blur}" /></filter></defs>`;
   const fill = `rgba(35, 35, 35, ${opacity})`;
   const stroke = `rgba(20, 20, 20, ${strokeOpacity})`;
 
@@ -561,7 +561,7 @@ function svgForItem(item) {
     return `<svg class="floater-svg" width="220" height="220" viewBox="0 0 220 220">${defs}<g filter="url(#b-${item.id})">${circles}</g></svg>`;
   }
   if (item.type === 'ring') {
-    return `<svg class="floater-svg" width="240" height="240" viewBox="0 0 240 240">${defs}<g filter="url(#b-${item.id})"><circle cx="120" cy="120" r="56" fill="none" stroke="${stroke}" stroke-width="${8 + item.structure * 10}" /><circle cx="120" cy="120" r="22" fill="rgba(20,20,20,${Math.max(0.03, item.contrast * 0.14).toFixed(2)})" /></g></svg>`;
+    return `<svg class="floater-svg" width="300" height="300" viewBox="0 0 300 300">${defs}<g filter="url(#b-${item.id})"><circle cx="150" cy="150" r="64" fill="none" stroke="${stroke}" stroke-width="${8 + item.structure * 10}" /><circle cx="150" cy="150" r="24" fill="rgba(20,20,20,${Math.max(0.03, item.contrast * 0.14).toFixed(2)})" /></g></svg>`;
   }
   if (item.type === 'thread') {
     const sway = 35 + item.structure * 90;
@@ -991,12 +991,20 @@ function loadDemoScene() {
   selectObject('item', state.eyes.left.items[0]?.id || null, 'left');
 }
 
-function pickRandomTarget(eye = state.activeEye) {
-  const currentEye = eyeState(eye);
+function pickRandomTarget() {
   const rect = stageRect();
   const maxOffset = Math.min(220, Math.min(rect.width, rect.height) * 0.16) * state.motionIntensity;
-  currentEye.randomTarget.x = rand(-maxOffset, maxOffset);
-  currentEye.randomTarget.y = rand(-maxOffset, maxOffset);
+  const sharedTarget = {
+    x: rand(-maxOffset, maxOffset),
+    y: rand(-maxOffset, maxOffset)
+  };
+
+  EYES.forEach((eye, index) => {
+    const currentEye = eyeState(eye);
+    const offsetScale = 0.12 + index * 0.02;
+    currentEye.randomTarget.x = Math.max(-maxOffset, Math.min(maxOffset, sharedTarget.x + rand(-maxOffset * offsetScale, maxOffset * offsetScale)));
+    currentEye.randomTarget.y = Math.max(-maxOffset, Math.min(maxOffset, sharedTarget.y + rand(-maxOffset * offsetScale, maxOffset * offsetScale)));
+  });
 }
 
 function applyItemTransforms(eye, now) {
@@ -1035,7 +1043,7 @@ function animate(now) {
 
 setInterval(() => {
   if (state.motionMode === 'random' && state.motionRunning) {
-    EYES.forEach((eye) => pickRandomTarget(eye));
+    pickRandomTarget();
   }
 }, 2800);
 
@@ -1164,14 +1172,21 @@ function onFaceResults(results) {
   const rightEyeWidth = Math.max(0.0001, landmarks[263].x - landmarks[362].x);
   const leftIrisOffsetX = (leftIris.x - landmarks[33].x) / leftEyeWidth - 0.5;
   const rightIrisOffsetX = (rightIris.x - landmarks[362].x) / rightEyeWidth - 0.5;
+  const sharedIrisOffsetX = (leftIrisOffsetX + rightIrisOffsetX) / 2;
+  const leftEyeDifference = leftIrisOffsetX - sharedIrisOffsetX;
+  const rightEyeDifference = rightIrisOffsetX - sharedIrisOffsetX;
 
   const maxX = rect.width * 0.18 * state.motionIntensity;
   const maxY = rect.height * 0.16 * state.motionIntensity;
+  const sharedTargetX = -sharedIrisOffsetX * rect.width * 1.15 * state.motionIntensity;
+  const leftNaturalOffsetX = -leftEyeDifference * rect.width * 0.2 * state.motionIntensity;
+  const rightNaturalOffsetX = -rightEyeDifference * rect.width * 0.2 * state.motionIntensity;
+  const sharedTargetY = eyeLidDelta * rect.height * 120 * state.motionIntensity;
 
-  state.eyes.left.eyeTarget.x = Math.max(-maxX, Math.min(maxX, -leftIrisOffsetX * rect.width * 1.15 * state.motionIntensity));
-  state.eyes.right.eyeTarget.x = Math.max(-maxX, Math.min(maxX, -rightIrisOffsetX * rect.width * 1.15 * state.motionIntensity));
-  state.eyes.left.eyeTarget.y = Math.max(-maxY, Math.min(maxY, eyeLidDelta * rect.height * 120 * state.motionIntensity));
-  state.eyes.right.eyeTarget.y = Math.max(-maxY, Math.min(maxY, eyeLidDelta * rect.height * 120 * state.motionIntensity));
+  state.eyes.left.eyeTarget.x = Math.max(-maxX, Math.min(maxX, sharedTargetX + leftNaturalOffsetX));
+  state.eyes.right.eyeTarget.x = Math.max(-maxX, Math.min(maxX, sharedTargetX + rightNaturalOffsetX));
+  state.eyes.left.eyeTarget.y = Math.max(-maxY, Math.min(maxY, sharedTargetY));
+  state.eyes.right.eyeTarget.y = Math.max(-maxY, Math.min(maxY, sharedTargetY));
 }
 
 function rerenderSelectedItem() {
@@ -1205,7 +1220,7 @@ motionInputs.forEach((input) => input.addEventListener('change', async () => {
 }));
 controls.motionIntensity.addEventListener('input', (e) => {
   state.motionIntensity = Number(e.target.value);
-  EYES.forEach((eye) => pickRandomTarget(eye));
+  pickRandomTarget();
 });
 controls.itemContrast.addEventListener('input', (e) => updateSelectedObject('contrast', Number(e.target.value)));
 controls.itemBlur.addEventListener('input', (e) => updateSelectedObject('blur', Number(e.target.value)));
@@ -1231,7 +1246,7 @@ controls.demoScene.addEventListener('click', loadDemoScene);
 controls.startMotion.addEventListener('click', () => {
   state.motionRunning = true;
   if (state.motionMode === 'eye') enableCamera();
-  EYES.forEach((eye) => pickRandomTarget(eye));
+  pickRandomTarget();
 });
 controls.stopMotion.addEventListener('click', () => {
   state.motionRunning = false;
@@ -1289,7 +1304,7 @@ window.addEventListener('keydown', (event) => {
 ensureStageLayers();
 populateLanguageSelect();
 setViewBox();
-EYES.forEach((eye) => pickRandomTarget(eye));
+pickRandomTarget();
 EYES.forEach((eye) => {
   renderItems(eye);
   renderDrawings(eye);
