@@ -62,7 +62,7 @@ const translations = {
     sceneSnow: 'Snow',
     scenePlain: 'No background',
     refractionStrength: 'Background refraction',
-    refractionHint: 'Samples the actual scene under key floater shapes, then locally distorts and blurs it.',
+    refractionHint: 'Adds a subtle masked blur/lens effect behind floater shapes.',
     resetScene: 'Reset scene',
     loadStarterSet: 'Load starter set',
     preview: 'Preview',
@@ -122,7 +122,7 @@ const translations = {
     sceneSnow: 'Снег',
     scenePlain: 'Без фона',
     refractionStrength: 'Рефракция фона',
-    refractionHint: 'Берёт реальный фон под важными формами помутнений и локально искажает/размывает его.',
+    refractionHint: 'Добавляет лёгкий маскированный blur/эффект линзы за формой помутнения.',
     resetScene: 'Сбросить сцену',
     loadStarterSet: 'Загрузить набор',
     preview: 'Предпросмотр',
@@ -182,7 +182,7 @@ const translations = {
     sceneSnow: 'Nieve',
     scenePlain: 'Sin fondo',
     refractionStrength: 'Refracción del fondo',
-    refractionHint: 'Muestrea la escena real bajo las formas principales y la distorsiona/desenfoca localmente.',
+    refractionHint: 'Añade un desenfoque/efecto de lente sutil enmascarado detrás de la forma.',
     resetScene: 'Restablecer escena',
     loadStarterSet: 'Cargar conjunto inicial',
     preview: 'Vista previa',
@@ -242,7 +242,7 @@ const translations = {
     sceneSnow: 'Neve',
     scenePlain: 'Sem fundo',
     refractionStrength: 'Refração do fundo',
-    refractionHint: 'Amostra a cena real sob as formas principais e a distorce/desfoca localmente.',
+    refractionHint: 'Adiciona um desfoque/efeito de lente sutil mascarado atrás da forma.',
     resetScene: 'Redefinir cena',
     loadStarterSet: 'Carregar conjunto inicial',
     preview: 'Pré-visualização',
@@ -302,7 +302,7 @@ const translations = {
     sceneSnow: '雪景',
     scenePlain: '无背景',
     refractionStrength: '背景折射',
-    refractionHint: '对主要飞蚊形状下方的真实背景进行局部采样、扭曲和模糊。',
+    refractionHint: '在飞蚊形状后方增加轻微的遮罩模糊/镜片效果。',
     resetScene: '重置场景',
     loadStarterSet: '加载初始组合',
     preview: '预览',
@@ -362,7 +362,7 @@ const translations = {
     sceneSnow: 'الثلج',
     scenePlain: 'بدون خلفية',
     refractionStrength: 'انكسار الخلفية',
-    refractionHint: 'يأخذ الخلفية الحقيقية تحت الأشكال الأساسية ثم يحرّفها ويُموّهها محليًا.',
+    refractionHint: 'يضيف تمويهًا/تأثير عدسة خفيفًا ومقنّعًا خلف شكل العائمة.',
     resetScene: 'إعادة ضبط المشهد',
     loadStarterSet: 'تحميل مجموعة البداية',
     preview: 'المعاينة',
@@ -374,8 +374,8 @@ const translations = {
 };
 
 const EYES = ['left', 'right'];
-function createEyeState() { return { items: [], drawings: [], selection: { type: null, id: null }, randomTarget: { x: 0, y: 0 }, motionOffset: { x: 0, y: 0 }, motionTarget: { x: 0, y: 0 }, eyeTarget: { x: 0, y: 0 }, elements: { motionLayer: null, refractionLayer: null, floaterLayer: null, drawLayer: null }, refractionFrame: null }; }
-const state = { eyes: { left: createEyeState(), right: createEyeState() }, activeEye: 'left', previewMode: 'both', clipboard: null, drawingEnabled: false, drawingPath: null, lastPointer: null, motionMode: 'random', motionIntensity: 0.8, motionRunning: true, brushSize: 4, brushAlpha: 0.25, scene: 'plain', refractionStrength: 0.52, eye: { active: false, baseEyeLidDistance: null, faceMesh: null, camera: null, stream: null }, language: 'en', focusPreview: false, dragging: { eye: null, type: null, id: null, pointerId: null, dx: 0, dy: 0 }, sceneAssets: { beach: null, snow: null }, sceneReady: false };
+function createEyeState() { return { items: [], drawings: [], selection: { type: null, id: null }, randomTarget: { x: 0, y: 0 }, motionOffset: { x: 0, y: 0 }, motionTarget: { x: 0, y: 0 }, eyeTarget: { x: 0, y: 0 }, elements: { motionLayer: null, floaterLayer: null, drawLayer: null } }; }
+const state = { eyes: { left: createEyeState(), right: createEyeState() }, activeEye: 'left', previewMode: 'both', clipboard: null, drawingEnabled: false, drawingPath: null, lastPointer: null, motionMode: 'random', motionIntensity: 0.8, motionRunning: true, brushSize: 4, brushAlpha: 0.25, scene: 'plain', refractionStrength: 0.38, eye: { active: false, baseEyeLidDistance: null, faceMesh: null, camera: null, stream: null }, language: 'en', focusPreview: false, dragging: { eye: null, type: null, id: null, pointerId: null, dx: 0, dy: 0 } };
 
 const presetButtons = document.querySelectorAll('[data-preset]');
 const sceneButtons = document.querySelectorAll('[data-scene]');
@@ -396,9 +396,9 @@ function selectedDrawing(eye = state.activeEye) { const currentEye = eyeState(ey
 function eyeKeyLabel(eye) { return eye === 'left' ? 'leftEye' : 'rightEye'; }
 function clamp(value, min, max) { return Math.min(max, Math.max(min, value)); }
 
-function ensureStageLayers() { EYES.forEach((eye) => { const motionLayer = document.getElementById(`${eye}MotionLayer`); state.eyes[eye].elements.motionLayer = motionLayer; state.eyes[eye].elements.refractionLayer = motionLayer.querySelector('.refraction-layer'); state.eyes[eye].elements.floaterLayer = motionLayer.querySelector('.floater-layer'); state.eyes[eye].elements.drawLayer = motionLayer.querySelector('.draw-layer'); }); }
+function ensureStageLayers() { EYES.forEach((eye) => { const motionLayer = document.getElementById(`${eye}MotionLayer`); state.eyes[eye].elements.motionLayer = motionLayer; state.eyes[eye].elements.floaterLayer = motionLayer.querySelector('.floater-layer'); state.eyes[eye].elements.drawLayer = motionLayer.querySelector('.draw-layer'); }); }
 function makeItem(type, x = rand(20, 80), y = rand(20, 80), overrides = {}) { return { id: uid(), type, x, y, rotation: overrides.rotation ?? rand(-20, 20), scale: overrides.scale ?? rand(0.35, 2.6), density: overrides.density ?? rand(0.7, 1.2), contrast: overrides.contrast ?? 0.55, blur: overrides.blur ?? 9, structure: overrides.structure ?? 0.45, driftSeed: rand(0, Math.PI * 2), element: null, eye: overrides.eye ?? state.activeEye }; }
-function setViewBox() { EYES.forEach((eye) => { const currentEye = state.eyes[eye]; const drawLayer = currentEye.elements.drawLayer; if (!drawLayer) return; const rect = drawLayer.getBoundingClientRect(); drawLayer.setAttribute('viewBox', `0 0 ${Math.max(1, rect.width)} ${Math.max(1, rect.height)}`); const canvas = currentEye.elements.refractionLayer; if (canvas) resizeRefractionCanvas(canvas, rect.width, rect.height); currentEye.refractionFrame = null; }); state.sceneReady = false; }
+function setViewBox() { EYES.forEach((eye) => { const drawLayer = state.eyes[eye].elements.drawLayer; if (!drawLayer) return; const rect = drawLayer.getBoundingClientRect(); drawLayer.setAttribute('viewBox', `0 0 ${Math.max(1, rect.width)} ${Math.max(1, rect.height)}`); }); }
 function populateLanguageSelect() { controls.languageSelect.innerHTML = Object.entries(languageMeta).map(([code, meta]) => `<option value="${code}">${meta.label}</option>`).join(''); controls.languageSelect.value = state.language; }
 
 function updateMotionButton() { controls.toggleMotion.textContent = state.motionRunning ? t('stopMotion') : t('startMotion'); controls.toggleMotion.classList.toggle('ghost', !state.motionRunning); }
@@ -434,231 +434,6 @@ function applyScene() {
   stage.classList.remove('scene-beach', 'scene-snow', 'scene-plain');
   stage.classList.add(`scene-${state.scene}`);
   sceneButtons.forEach((button) => button.classList.toggle('active', button.dataset.scene === state.scene));
-  state.sceneReady = false;
-  EYES.forEach((eye) => { state.eyes[eye].refractionFrame = null; });
-}
-
-function resizeRefractionCanvas(canvas, width, height) {
-  const dpr = Math.min(window.devicePixelRatio || 1, 2);
-  const safeWidth = Math.max(1, Math.round(width));
-  const safeHeight = Math.max(1, Math.round(height));
-  canvas.width = Math.max(1, Math.round(safeWidth * dpr));
-  canvas.height = Math.max(1, Math.round(safeHeight * dpr));
-  canvas.dataset.width = String(safeWidth);
-  canvas.dataset.height = String(safeHeight);
-  canvas.dataset.dpr = String(dpr);
-}
-
-function canvasMetrics(canvas) {
-  return {
-    width: Number(canvas.dataset.width || canvas.clientWidth || 1),
-    height: Number(canvas.dataset.height || canvas.clientHeight || 1),
-    dpr: Number(canvas.dataset.dpr || Math.min(window.devicePixelRatio || 1, 2))
-  };
-}
-
-function loadSceneAsset(src) {
-  return new Promise((resolve) => {
-    const img = new Image();
-    img.onload = () => resolve(img);
-    img.onerror = () => resolve(null);
-    img.src = src;
-  });
-}
-
-async function ensureSceneAssets() {
-  if (state.sceneAssets.beach && state.sceneAssets.snow) return;
-  const [beach, snow] = await Promise.all([loadSceneAsset('./assets/beach-scene.jpg'), loadSceneAsset('./assets/snow-scene.jpg')]);
-  state.sceneAssets.beach = beach;
-  state.sceneAssets.snow = snow;
-  state.sceneReady = false;
-}
-
-function createSceneBuffer(width, height) {
-  const canvas = document.createElement('canvas');
-  canvas.width = Math.max(1, Math.round(width));
-  canvas.height = Math.max(1, Math.round(height));
-  const ctx = canvas.getContext('2d');
-  const gradient = ctx.createLinearGradient(0, 0, 0, height);
-  if (state.scene === 'beach') {
-    gradient.addColorStop(0, '#9ddcff');
-    gradient.addColorStop(0.4, '#dff3ff');
-    gradient.addColorStop(0.68, '#fbf6e1');
-    gradient.addColorStop(1, '#f3dfb0');
-  } else if (state.scene === 'snow') {
-    gradient.addColorStop(0, '#d5e6f6');
-    gradient.addColorStop(0.45, '#edf6fb');
-    gradient.addColorStop(1, '#ffffff');
-  } else {
-    gradient.addColorStop(0, '#f7f8fa');
-    gradient.addColorStop(1, '#f7f8fa');
-  }
-  ctx.fillStyle = gradient;
-  ctx.fillRect(0, 0, width, height);
-  const image = state.sceneAssets[state.scene];
-  if (image) {
-    const scale = Math.max(width / image.width, height / image.height);
-    const drawWidth = image.width * scale;
-    const drawHeight = image.height * scale;
-    const dx = (width - drawWidth) / 2;
-    const dy = (height - drawHeight) / 2;
-    ctx.globalAlpha = state.scene === 'plain' ? 0 : 0.96;
-    ctx.drawImage(image, dx, dy, drawWidth, drawHeight);
-    ctx.globalAlpha = state.scene === 'beach' ? 0.1 : 0.08;
-    const overlay = ctx.createLinearGradient(0, 0, 0, height);
-    overlay.addColorStop(0, 'rgba(255,255,255,1)');
-    overlay.addColorStop(1, 'rgba(255,255,255,0.65)');
-    ctx.fillStyle = overlay;
-    ctx.fillRect(0, 0, width, height);
-    ctx.globalAlpha = 1;
-  }
-  return canvas;
-}
-
-function getSceneBufferForEye(eye, width, height) {
-  const currentEye = eyeState(eye);
-  const cached = currentEye.refractionFrame;
-  if (cached && cached.scene === state.scene && cached.width === width && cached.height === height && state.sceneReady) return cached.buffer;
-  const buffer = createSceneBuffer(width, height);
-  currentEye.refractionFrame = { scene: state.scene, width, height, buffer };
-  state.sceneReady = true;
-  return buffer;
-}
-
-function itemGeometry(item) {
-  return svgForItem(item);
-}
-
-function itemMotionSnapshot(item, index, now) {
-  const activeMotion = state.motionRunning ? state.motionIntensity : 0;
-  const wobble = Math.sin(now / 1200 + item.driftSeed + index) * 7 * activeMotion;
-  const lift = Math.cos(now / 1400 + item.driftSeed * 1.6) * 6 * activeMotion;
-  return { wobble, lift, rotation: item.rotation + wobble * 0.3, scale: item.scale, opacity: Math.max(0.18, Math.min(0.95, 0.35 + item.contrast * 0.9)) };
-}
-
-function supportedRefractionType(type) {
-  return ['ring', 'smudge', 'cloud'].includes(type);
-}
-
-function itemMarkup(item) {
-  const svg = svgForItem(item);
-  return svg.art;
-}
-
-function buildItemPath(ctx, item, geometry) {
-  const type = item.type;
-  if (type === 'ring') {
-    ctx.beginPath();
-    ctx.arc(150, 150, 78, 0, Math.PI * 2);
-    ctx.arc(150, 150, 48, 0, Math.PI * 2, true);
-    ctx.arc(150, 150, 24, 0, Math.PI * 2);
-    return;
-  }
-  if (type === 'thread') {
-    const sway = 35 + item.structure * 90;
-    ctx.beginPath();
-    ctx.moveTo(18, 90);
-    ctx.bezierCurveTo(70, 90 - sway, 130, 90 + sway, 190, 92);
-    ctx.bezierCurveTo(225, 98, 245, 95 - sway * 0.45, 262, 88);
-    ctx.lineWidth = 14 + item.structure * 18;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-    return;
-  }
-  if (type === 'cobweb') {
-    ctx.beginPath();
-    ctx.moveTo(24, 122);
-    ctx.bezierCurveTo(58, 35, 110, 52, 144, 114);
-    ctx.bezierCurveTo(184, 168, 232, 186, 279, 103);
-    ctx.moveTo(72, 154);
-    ctx.bezierCurveTo(99, 115, 122, 88, 165, 102);
-    ctx.bezierCurveTo(196, 112, 210, 139, 240, 164);
-    ctx.moveTo(55, 72);
-    ctx.bezierCurveTo(102, 112, 132, 120, 193, 96);
-    ctx.lineWidth = 12 + item.structure * 10;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-    return;
-  }
-  if (type === 'cloud') {
-    ctx.beginPath();
-    [[88, 100, 50, 31], [136, 88, 64, 38], [188, 104, 60, 34], [144, 112, 94, 41]].forEach(([x, y, rx, ry]) => {
-      ctx.moveTo(x + rx, y);
-      ctx.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2);
-    });
-    return;
-  }
-  ctx.beginPath();
-  ctx.ellipse(130, 90, 78, 42, 0, 0, Math.PI * 2);
-  ctx.ellipse(160, 92, 44, 24, 0, 0, Math.PI * 2);
-}
-
-function strokeOnlyType(type) {
-  return type === 'thread' || type === 'cobweb';
-}
-
-function drawRefractionPatch(ctx, sceneBuffer, item, geometry, snapshot, currentEye) {
-  if (!supportedRefractionType(item.type) || state.refractionStrength <= 0.01) return;
-  const baseX = currentEye.motionOffset.x + (item.x / 100) * sceneBuffer.width;
-  const baseY = currentEye.motionOffset.y + (item.y / 100) * sceneBuffer.height;
-  const x = baseX + snapshot.wobble;
-  const y = baseY + snapshot.lift;
-  const patchW = geometry.width * snapshot.scale;
-  const patchH = geometry.height * snapshot.scale;
-  const samplePad = Math.max(18, 14 + item.blur * 2 + state.refractionStrength * 32);
-  const destX = x - patchW / 2 - samplePad;
-  const destY = y - patchH / 2 - samplePad;
-  const destW = patchW + samplePad * 2;
-  const destH = patchH + samplePad * 2;
-  const srcX = clamp(destX, 0, sceneBuffer.width);
-  const srcY = clamp(destY, 0, sceneBuffer.height);
-  const srcW = clamp(destW, 1, sceneBuffer.width - srcX);
-  const srcH = clamp(destH, 1, sceneBuffer.height - srcY);
-  if (srcW <= 1 || srcH <= 1) return;
-
-  ctx.save();
-  ctx.translate(x, y);
-  ctx.rotate(snapshot.rotation * Math.PI / 180);
-  ctx.scale(snapshot.scale, snapshot.scale);
-  ctx.translate(-geometry.width / 2, -geometry.height / 2);
-  buildItemPath(ctx, item, geometry);
-  ctx.clip('evenodd');
-
-  const blurPx = (1.5 + item.blur * 0.28 + state.refractionStrength * 8 + item.structure * 2.5).toFixed(2);
-  ctx.filter = `blur(${blurPx}px)`;
-  ctx.globalAlpha = Math.min(0.92, 0.14 + state.refractionStrength * 0.72 + item.contrast * 0.08);
-  const distortX = state.refractionStrength * (8 + item.structure * 10) + item.contrast * 3;
-  const distortY = state.refractionStrength * (5 + item.structure * 6) + item.blur * 0.18;
-  ctx.drawImage(sceneBuffer, srcX, srcY, srcW, srcH, -samplePad + distortX, -samplePad - distortY * 0.35, geometry.width + samplePad * 2, geometry.height + samplePad * 2);
-  ctx.globalAlpha *= 0.55;
-  ctx.drawImage(sceneBuffer, srcX, srcY, srcW, srcH, -samplePad - distortX * 0.45, -samplePad + distortY * 0.55, geometry.width + samplePad * 2, geometry.height + samplePad * 2);
-  ctx.filter = 'none';
-
-  const highlightAlpha = 0.04 + state.refractionStrength * 0.12 + item.structure * 0.03;
-  ctx.globalCompositeOperation = 'screen';
-  ctx.fillStyle = `rgba(255,255,255,${highlightAlpha.toFixed(3)})`;
-  ctx.beginPath();
-  ctx.ellipse(geometry.width * 0.38, geometry.height * 0.32, geometry.width * 0.24, geometry.height * 0.16, -0.35, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.globalCompositeOperation = 'multiply';
-  ctx.fillStyle = `rgba(0,0,0,${(0.03 + state.refractionStrength * 0.09 + item.contrast * 0.03).toFixed(3)})`;
-  ctx.beginPath();
-  ctx.ellipse(geometry.width * 0.68, geometry.height * 0.68, geometry.width * 0.26, geometry.height * 0.18, 0.3, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.restore();
-}
-
-function renderRefractionLayer(eye, now) {
-  const currentEye = eyeState(eye);
-  const canvas = currentEye.elements.refractionLayer;
-  if (!canvas) return;
-  const metrics = canvasMetrics(canvas);
-  const ctx = canvas.getContext('2d');
-  ctx.setTransform(metrics.dpr, 0, 0, metrics.dpr, 0, 0);
-  ctx.clearRect(0, 0, metrics.width, metrics.height);
-  if (state.refractionStrength <= 0.01 || !currentEye.items.length) return;
-  const sceneBuffer = getSceneBufferForEye(eye, metrics.width, metrics.height);
-  currentEye.items.forEach((item, index) => drawRefractionPatch(ctx, sceneBuffer, item, itemGeometry(item), itemMotionSnapshot(item, index, now), currentEye));
 }
 
 function maskForItem(item) {
@@ -669,6 +444,16 @@ function maskForItem(item) {
   if (item.type === 'cloud') return `<ellipse cx="88" cy="100" rx="50" ry="31" fill="white" /><ellipse cx="136" cy="88" rx="64" ry="38" fill="white" /><ellipse cx="188" cy="104" rx="60" ry="34" fill="white" /><ellipse cx="144" cy="112" rx="94" ry="41" fill="white" />`;
   return `<ellipse cx="130" cy="90" rx="78" ry="42" fill="white" /><ellipse cx="160" cy="92" rx="44" ry="24" fill="white" />`;
 }
+function maskDataUrl(item, width, height, viewBox) {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${viewBox}" width="${width}" height="${height}"><g>${maskForItem(item)}</g></svg>`;
+  return `url("data:image/svg+xml;utf8,${encodeURIComponent(svg)}")`;
+}
+function lensSvgForItem(item, width, height, viewBox) {
+  const strength = clamp(state.refractionStrength, 0, 1);
+  const highlightOpacity = (0.08 + strength * 0.14 + item.structure * 0.04).toFixed(2);
+  const shadeOpacity = (0.05 + strength * 0.12 + item.contrast * 0.05).toFixed(2);
+  return `<svg class="floater-lens-svg" viewBox="${viewBox}" width="${width}" height="${height}" aria-hidden="true" preserveAspectRatio="xMidYMid meet"><defs><filter id="lens-soft-${item.id}" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="6" /></filter></defs><g filter="url(#lens-soft-${item.id})">${maskForItem(item)}</g><ellipse cx="35%" cy="28%" rx="26%" ry="18%" fill="rgba(255,255,255,${highlightOpacity})" /><ellipse cx="68%" cy="72%" rx="30%" ry="22%" fill="rgba(0,0,0,${shadeOpacity})" /></svg>`;
+}
 function svgForItem(item) {
   const opacity = (item.contrast * 0.6 + 0.12).toFixed(2); const strokeOpacity = Math.max(0.08, item.contrast * 0.45).toFixed(2); const strokeWidth = (1.2 + item.structure * 3.4).toFixed(2); const blur = item.blur; const defs = `<defs><filter id="b-${item.id}" x="-45%" y="-45%" width="190%" height="190%" filterUnits="objectBoundingBox"><feGaussianBlur stdDeviation="${blur}" /></filter></defs>`; const fill = `rgba(35, 35, 35, ${opacity})`; const stroke = `rgba(20, 20, 20, ${strokeOpacity})`;
   if (item.type === 'dot') return { width: 220, height: 220, viewBox: '0 0 220 220', art: `<svg class="floater-svg" width="220" height="220" viewBox="0 0 220 220">${defs}<g filter="url(#b-${item.id})">${Array.from({ length: 6 }, () => `<circle cx="${rand(40, 190)}" cy="${rand(40, 190)}" r="${rand(8, 28) * item.density}" fill="${fill}" />`).join('')}</g></svg>` };
@@ -677,6 +462,12 @@ function svgForItem(item) {
   if (item.type === 'cobweb') return { width: 300, height: 230, viewBox: '0 0 300 230', art: `<svg class="floater-svg" width="300" height="230" viewBox="0 0 300 230">${defs}<g filter="url(#b-${item.id})"><path d="M24 122 C 58 35, 110 52, 144 114 S 232 186, 279 103" fill="none" stroke="${stroke}" stroke-width="${strokeWidth}"/><path d="M72 154 C 99 115, 122 88, 165 102 S 210 139, 240 164" fill="none" stroke="${stroke}" stroke-width="${(strokeWidth * 0.8).toFixed(2)}"/><path d="M55 72 C 102 112, 132 120, 193 96" fill="none" stroke="${stroke}" stroke-width="${(strokeWidth * 0.65).toFixed(2)}"/></g></svg>` };
   if (item.type === 'cloud') return { width: 280, height: 190, viewBox: '0 0 280 190', art: `<svg class="floater-svg" width="280" height="190" viewBox="0 0 280 190">${defs}<g filter="url(#b-${item.id})"><ellipse cx="88" cy="100" rx="48" ry="28" fill="rgba(35,35,35,${Math.max(0.07, item.contrast * 0.18).toFixed(2)})" /><ellipse cx="136" cy="88" rx="62" ry="34" fill="rgba(35,35,35,${Math.max(0.08, item.contrast * 0.22).toFixed(2)})" /><ellipse cx="188" cy="104" rx="58" ry="31" fill="rgba(35,35,35,${Math.max(0.06, item.contrast * 0.18).toFixed(2)})" /><ellipse cx="144" cy="112" rx="92" ry="38" fill="rgba(35,35,35,${Math.max(0.04, item.contrast * 0.11).toFixed(2)})" /></g></svg>` };
   return { width: 260, height: 180, viewBox: '0 0 260 180', art: `<svg class="floater-svg" width="260" height="180" viewBox="0 0 260 180">${defs}<g filter="url(#b-${item.id})"><ellipse cx="130" cy="90" rx="76" ry="40" fill="rgba(35,35,35,${Math.max(0.08, item.contrast * 0.25).toFixed(2)})" /><ellipse cx="160" cy="92" rx="42" ry="22" fill="rgba(35,35,35,${Math.max(0.05, item.contrast * 0.14).toFixed(2)})" /></g></svg>` };
+}
+function itemMarkup(item) {
+  const svg = svgForItem(item);
+  const lensSvg = lensSvgForItem(item, svg.width, svg.height, svg.viewBox);
+  const maskUrl = maskDataUrl(item, svg.width, svg.height, svg.viewBox);
+  return `<div class="floater-lens" aria-hidden="true" style="--lens-mask:${maskUrl}">${lensSvg}</div>${svg.art}`;
 }
 
 function buildDrawingPath(points) { if (!points.length) return ''; if (points.length === 1) return `M ${points[0].x} ${points[0].y}`; let d = `M ${points[0].x} ${points[0].y}`; for (let i = 1; i < points.length; i += 1) { const prev = points[i - 1]; const point = points[i]; d += ` Q ${prev.x} ${prev.y} ${(prev.x + point.x) / 2} ${(prev.y + point.y) / 2}`; } const last = points[points.length - 1]; return `${d} L ${last.x} ${last.y}`; }
@@ -707,37 +498,8 @@ function stopDragItem() { if (!state.dragging.id) return; if (state.dragging.typ
 function resetScene() { EYES.forEach((eye) => { state.eyes[eye].items = []; state.eyes[eye].drawings = []; state.eyes[eye].selection = { type: null, id: null }; state.eyes[eye].randomTarget = { x: 0, y: 0 }; state.eyes[eye].motionOffset = { x: 0, y: 0 }; state.eyes[eye].motionTarget = { x: 0, y: 0 }; state.eyes[eye].eyeTarget = { x: 0, y: 0 }; state.eyes[eye].elements.motionLayer.style.transform = 'translate(0px, 0px)'; renderItems(eye); renderDrawings(eye); }); updateSelectionUi(); }
 function loadDemoScene() { state.eyes.left.items = [makeItem('ring', 32, 40, { eye: 'left' }), makeItem('thread', 54, 56, { eye: 'left' }), makeItem('dot', 43, 65, { eye: 'left' })]; state.eyes.right.items = [makeItem('cobweb', 64, 39, { eye: 'right' }), makeItem('cloud', 33, 61, { eye: 'right' }), makeItem('smudge', 57, 35, { eye: 'right' })]; state.eyes.left.drawings = []; state.eyes.right.drawings = []; EYES.forEach((eye) => renderItems(eye)); selectObject('item', state.eyes.left.items[0]?.id || null, 'left'); }
 function pickRandomTarget() { const rect = stageRect(); const maxOffset = Math.min(220, Math.min(rect.width, rect.height) * 0.16) * state.motionIntensity; const sharedTarget = { x: rand(-maxOffset, maxOffset), y: rand(-maxOffset, maxOffset) }; EYES.forEach((eye, index) => { const currentEye = eyeState(eye); const offsetScale = 0.12 + index * 0.02; currentEye.randomTarget.x = Math.max(-maxOffset, Math.min(maxOffset, sharedTarget.x + rand(-maxOffset * offsetScale, maxOffset * offsetScale))); currentEye.randomTarget.y = Math.max(-maxOffset, Math.min(maxOffset, sharedTarget.y + rand(-maxOffset * offsetScale, maxOffset * offsetScale))); }); }
-function applyItemTransforms(eye, now) {
-  eyeState(eye).items.forEach((item, index) => {
-    if (!item.element) return;
-    const snapshot = itemMotionSnapshot(item, index, now);
-    item.element.style.transform = `translate(-50%, -50%) rotate(${snapshot.rotation}deg) scale(${snapshot.scale}) translate(${snapshot.wobble}px, ${snapshot.lift}px)`;
-    item.element.style.opacity = `${snapshot.opacity}`;
-  });
-}
-function animate(now) {
-  EYES.forEach((eye) => {
-    const currentEye = eyeState(eye);
-    if (state.motionRunning) {
-      if (state.motionMode === 'random') {
-        currentEye.motionTarget.x += (currentEye.randomTarget.x - currentEye.motionTarget.x) * 0.05;
-        currentEye.motionTarget.y += (currentEye.randomTarget.y - currentEye.motionTarget.y) * 0.05;
-      } else {
-        currentEye.motionTarget.x += (currentEye.eyeTarget.x - currentEye.motionTarget.x) * 0.14;
-        currentEye.motionTarget.y += (currentEye.eyeTarget.y - currentEye.motionTarget.y) * 0.14;
-      }
-    } else {
-      currentEye.motionTarget.x += (0 - currentEye.motionTarget.x) * 0.15;
-      currentEye.motionTarget.y += (0 - currentEye.motionTarget.y) * 0.15;
-    }
-    currentEye.motionOffset.x += (currentEye.motionTarget.x - currentEye.motionOffset.x) * 0.18;
-    currentEye.motionOffset.y += (currentEye.motionTarget.y - currentEye.motionOffset.y) * 0.18;
-    currentEye.elements.motionLayer.style.transform = `translate(${currentEye.motionOffset.x}px, ${currentEye.motionOffset.y}px)`;
-    applyItemTransforms(eye, now);
-    renderRefractionLayer(eye, now);
-  });
-  requestAnimationFrame(animate);
-}
+function applyItemTransforms(eye, now) { eyeState(eye).items.forEach((item, index) => { if (!item.element) return; const wobble = Math.sin(now / 1200 + item.driftSeed + index) * 7 * (state.motionRunning ? state.motionIntensity : 0); const lift = Math.cos(now / 1400 + item.driftSeed * 1.6) * 6 * (state.motionRunning ? state.motionIntensity : 0); item.element.style.transform = `translate(-50%, -50%) rotate(${item.rotation + wobble * 0.3}deg) scale(${item.scale}) translate(${wobble}px, ${lift}px)`; item.element.style.opacity = `${Math.max(0.18, Math.min(0.95, 0.35 + item.contrast * 0.9))}`; const lens = item.element.querySelector('.floater-lens'); if (lens) { const shift = state.refractionStrength * (2.8 + item.structure * 2.2); lens.style.transform = `translate(${(-wobble * 0.12).toFixed(2)}px, ${(-lift * 0.12).toFixed(2)}px) scale(${(1.015 + state.refractionStrength * 0.05).toFixed(3)})`; lens.style.setProperty('--lens-blur', `${(1.5 + state.refractionStrength * 10 + item.structure * 2.5).toFixed(2)}px`); lens.style.setProperty('--lens-opacity', `${(0.12 + state.refractionStrength * 0.78).toFixed(3)}`); lens.style.setProperty('--lens-shadow', `${(0.06 + item.contrast * 0.1 + state.refractionStrength * 0.08).toFixed(3)}`); lens.style.setProperty('--lens-shift', `${shift.toFixed(2)}px`); } }); }
+function animate(now) { EYES.forEach((eye) => { const currentEye = eyeState(eye); if (state.motionRunning) { if (state.motionMode === 'random') { currentEye.motionTarget.x += (currentEye.randomTarget.x - currentEye.motionTarget.x) * 0.05; currentEye.motionTarget.y += (currentEye.randomTarget.y - currentEye.motionTarget.y) * 0.05; } else { currentEye.motionTarget.x += (currentEye.eyeTarget.x - currentEye.motionTarget.x) * 0.14; currentEye.motionTarget.y += (currentEye.eyeTarget.y - currentEye.motionTarget.y) * 0.14; } } else { currentEye.motionTarget.x += (0 - currentEye.motionTarget.x) * 0.15; currentEye.motionTarget.y += (0 - currentEye.motionTarget.y) * 0.15; } currentEye.motionOffset.x += (currentEye.motionTarget.x - currentEye.motionOffset.x) * 0.18; currentEye.motionOffset.y += (currentEye.motionTarget.y - currentEye.motionOffset.y) * 0.18; currentEye.elements.motionLayer.style.transform = `translate(${currentEye.motionOffset.x}px, ${currentEye.motionOffset.y}px)`; applyItemTransforms(eye, now); }); requestAnimationFrame(animate); }
 setInterval(() => { if (state.motionMode === 'random' && state.motionRunning) pickRandomTarget(); }, 2800);
 
 function pointerToStage(event, eye = state.activeEye) { const drawLayer = eyeState(eye).elements.drawLayer; const point = drawLayer.createSVGPoint(); point.x = event.clientX; point.y = event.clientY; const ctm = drawLayer.getScreenCTM(); if (!ctm) { const rect = stageRect(); return { x: event.clientX - rect.left, y: event.clientY - rect.top }; } const local = point.matrixTransform(ctm.inverse()); return { x: local.x, y: local.y }; }
@@ -858,4 +620,4 @@ window.addEventListener('pointerup', () => { stopDrawing(); stopDragItem(); });
 window.addEventListener('resize', setViewBox);
 window.addEventListener('keydown', (event) => { const isMac = navigator.platform.toUpperCase().includes('MAC'); const mod = isMac ? event.metaKey : event.ctrlKey; if (mod && event.key.toLowerCase() === 'c') copySelected(); if (mod && event.key.toLowerCase() === 'v') { pasteSelected(); event.preventDefault(); } if ((event.key === 'Delete' || event.key === 'Backspace') && !['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName)) deleteSelected(); if (event.key === 'Escape') closeInfoPopover(); });
 
-ensureStageLayers(); populateLanguageSelect(); setViewBox(); pickRandomTarget(); updateRefractionUi(); EYES.forEach((eye) => { renderItems(eye); renderDrawings(eye); }); applyScene(); applyTranslations(); updateEyeUi(); updateMotionButton(); ensureSceneAssets().then(() => { state.sceneReady = false; }); requestAnimationFrame(animate);
+ensureStageLayers(); populateLanguageSelect(); setViewBox(); pickRandomTarget(); updateRefractionUi(); EYES.forEach((eye) => { renderItems(eye); renderDrawings(eye); }); applyScene(); applyTranslations(); updateEyeUi(); updateMotionButton(); requestAnimationFrame(animate);

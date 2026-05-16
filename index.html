@@ -113,7 +113,7 @@
           <button data-scene="beach" data-i18n="sceneBeach">Beach</button>
           <button data-scene="snow" data-i18n="sceneSnow">Snow</button>
         </div>
-        <label><span data-i18n="refractionStrength">Background refraction</span> <input id="refractionStrength" type="range" min="0" max="1" step="0.05" value="0.52" /></label>
+        <label><span data-i18n="refractionStrength">Background refraction</span> <input id="refractionStrength" type="range" min="0" max="1" step="0.05" value="0.38" /></label>
         <p class="hint" data-i18n="refractionHint">Adds a subtle masked blur/lens effect behind floater shapes.</p>
         <div class="toggle-row wrap">
           <button id="resetScene" class="ghost" data-i18n="resetScene">Reset scene</button>
@@ -134,12 +134,10 @@
       <div id="stage" class="stage scene-plain">
         <div class="scene-overlay"></div>
         <div id="leftMotionLayer" class="motion-layer active-eye-layer" data-eye="left">
-          <canvas id="leftRefractionLayer" class="refraction-layer"></canvas>
           <div id="leftFloaterLayer" class="floater-layer"></div>
           <svg id="leftDrawLayer" class="draw-layer"></svg>
         </div>
         <div id="rightMotionLayer" class="motion-layer" data-eye="right">
-          <canvas id="rightRefractionLayer" class="refraction-layer"></canvas>
           <div id="rightFloaterLayer" class="floater-layer"></div>
           <svg id="rightDrawLayer" class="draw-layer"></svg>
         </div>

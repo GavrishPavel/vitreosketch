@@ -90,13 +90,12 @@ body.preview-only .app-shell { grid-template-columns: 1fr; }
   box-shadow: 0 18px 50px rgba(15, 23, 42, 0.08); cursor: default; isolation: isolate;
 }
 .scene-overlay { position: absolute; inset: 0; pointer-events: none; z-index: 0; background-position: center; background-size: cover; background-repeat: no-repeat; }
-.motion-layer, .refraction-layer, .floater-layer, .draw-layer { position: absolute; inset: 0; }
+.motion-layer, .floater-layer, .draw-layer { position: absolute; inset: 0; }
 .motion-layer { z-index: 1; transform: translate(0, 0); will-change: transform; }
 .motion-layer.hidden-eye { opacity: 0; pointer-events: none; }
 .motion-layer.active-eye-layer { z-index: 2; }
-.refraction-layer { width: 100%; height: 100%; pointer-events: none; z-index: 1; }
-.floater-layer { pointer-events: none; z-index: 2; }
-.draw-layer { width: 100%; height: 100%; pointer-events: auto; z-index: 3; }
+.floater-layer { pointer-events: none; }
+.draw-layer { width: 100%; height: 100%; pointer-events: auto; }
 .stage.scene-beach { background: linear-gradient(180deg, #9ddcff 0%, #dff3ff 40%, #fbf6e1 68%, #f3dfb0 100%); }
 .stage.scene-beach .scene-overlay {
   background-image: linear-gradient(180deg, rgba(255,255,255,0.1), rgba(255,255,255,0.08)), url('./assets/beach-scene.jpg');
