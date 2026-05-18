@@ -456,7 +456,7 @@ function resetScene() { EYES.forEach((eye) => { state.eyes[eye].items = []; stat
 function loadDemoScene() { state.eyes.left.items = [makeItem('ring', 32, 40, { eye: 'left' }), makeItem('thread', 54, 56, { eye: 'left' }), makeItem('dot', 43, 65, { eye: 'left' })]; state.eyes.right.items = [makeItem('cobweb', 64, 39, { eye: 'right' }), makeItem('cloud', 33, 61, { eye: 'right' }), makeItem('smudge', 57, 35, { eye: 'right' })]; state.eyes.left.drawings = []; state.eyes.right.drawings = []; EYES.forEach((eye) => renderItems(eye)); selectObject('item', state.eyes.left.items[0]?.id || null, 'left'); }
 function pickRandomTarget() { const rect = stageRect(); const maxOffset = Math.min(220, Math.min(rect.width, rect.height) * 0.16) * state.motionIntensity; const sharedTarget = { x: rand(-maxOffset, maxOffset), y: rand(-maxOffset, maxOffset) }; EYES.forEach((eye, index) => { const currentEye = eyeState(eye); const offsetScale = 0.12 + index * 0.02; currentEye.randomTarget.x = Math.max(-maxOffset, Math.min(maxOffset, sharedTarget.x + rand(-maxOffset * offsetScale, maxOffset * offsetScale))); currentEye.randomTarget.y = Math.max(-maxOffset, Math.min(maxOffset, sharedTarget.y + rand(-maxOffset * offsetScale, maxOffset * offsetScale))); }); }
 function applyItemTransforms(eye, now) { eyeState(eye).items.forEach((item, index) => { if (!item.element) return; const wobble = Math.sin(now / 1200 + item.driftSeed + index) * 7 * (state.motionRunning ? state.motionIntensity : 0); const lift = Math.cos(now / 1400 + item.driftSeed * 1.6) * 6 * (state.motionRunning ? state.motionIntensity : 0); item.element.style.transform = `translate(-50%, -50%) rotate(${item.rotation + wobble * 0.3}deg) scale(${item.scale}) translate(${wobble}px, ${lift}px)`; item.element.style.opacity = `${Math.max(0.18, Math.min(0.95, 0.35 + item.contrast * 0.9))}`; }); }
-function animate(now) { EYES.forEach((eye) => { const currentEye = eyeState(eye); if (state.motionRunning) { if (state.motionMode === 'random') { currentEye.motionTarget.x += (currentEye.randomTarget.x - currentEye.motionTarget.x) * 0.05; currentEye.motionTarget.y += (currentEye.randomTarget.y - currentEye.motionTarget.y) * 0.05; } else { currentEye.motionTarget.x += (currentEye.eyeTarget.x - currentEye.motionTarget.x) * 0.14; currentEye.motionTarget.y += (currentEye.eyeTarget.y - currentEye.motionTarget.y) * 0.14; } } else { currentEye.motionTarget.x += (0 - currentEye.motionTarget.x) * 0.15; currentEye.motionTarget.y += (0 - currentEye.motionTarget.y) * 0.15; } currentEye.motionOffset.x += (currentEye.motionTarget.x - currentEye.motionOffset.x) * 0.18; currentEye.motionOffset.y += (currentEye.motionTarget.y - currentEye.motionOffset.y) * 0.18; currentEye.elements.motionLayer.style.transform = `translate(${currentEye.motionOffset.x}px, ${currentEye.motionOffset.y}px)`; applyItemTransforms(eye, now); }); requestAnimationFrame(animate); }
+function animate(now) { EYES.forEach((eye) => { const currentEye = eyeState(eye); if (state.motionRunning) { if (state.motionMode === 'random') { currentEye.motionTarget.x += (currentEye.randomTarget.x - currentEye.motionTarget.x) * 0.05; currentEye.motionTarget.y += (currentEye.randomTarget.y - currentEye.motionTarget.y) * 0.05; } else { currentEye.motionTarget.x += (currentEye.eyeTarget.x - currentEye.motionTarget.x) * 0.025; currentEye.motionTarget.y += (currentEye.eyeTarget.y - currentEye.motionTarget.y) * 0.025; } } else { currentEye.motionTarget.x += (0 - currentEye.motionTarget.x) * 0.08; currentEye.motionTarget.y += (0 - currentEye.motionTarget.y) * 0.08; } currentEye.motionOffset.x += (currentEye.motionTarget.x - currentEye.motionOffset.x) * 0.06; currentEye.motionOffset.y += (currentEye.motionTarget.y - currentEye.motionOffset.y) * 0.06; currentEye.elements.motionLayer.style.transform = `translate(${currentEye.motionOffset.x}px, ${currentEye.motionOffset.y}px)`; applyItemTransforms(eye, now); }); requestAnimationFrame(animate); }
 setInterval(() => { if (state.motionMode === 'random' && state.motionRunning) pickRandomTarget(); }, 2800);
 
 function pointerToStage(event, eye = state.activeEye) { const drawLayer = eyeState(eye).elements.drawLayer; const point = drawLayer.createSVGPoint(); point.x = event.clientX; point.y = event.clientY; const ctm = drawLayer.getScreenCTM(); if (!ctm) { const rect = stageRect(); return { x: event.clientX - rect.left, y: event.clientY - rect.top }; } const local = point.matrixTransform(ctm.inverse()); return { x: local.x, y: local.y }; }
@@ -511,7 +511,45 @@ async function syncMotionModeSideEffects() {
 
 function onFaceResults(results) {
   if (state.motionMode !== 'eye' || !state.motionRunning) return;
-  const rect = stageRect(); if (!results.multiFaceLandmarks?.length) return; const landmarks = results.multiFaceLandmarks[0]; const leftUpperEyelid = landmarks[159]; const leftLowerEyelid = landmarks[145]; const rightUpperEyelid = landmarks[386]; const rightLowerEyelid = landmarks[374]; const leftIris = landmarks[468]; const rightIris = landmarks[473]; const leftEyeLidDistance = leftLowerEyelid.y - leftUpperEyelid.y; const rightEyeLidDistance = rightLowerEyelid.y - rightUpperEyelid.y; const currentEyeLidDistance = (leftEyeLidDistance + rightEyeLidDistance) / 2; if (state.eye.baseEyeLidDistance === null) state.eye.baseEyeLidDistance = currentEyeLidDistance; const eyeLidDelta = currentEyeLidDistance - state.eye.baseEyeLidDistance; const leftEyeWidth = Math.max(0.0001, landmarks[133].x - landmarks[33].x); const rightEyeWidth = Math.max(0.0001, landmarks[263].x - landmarks[362].x); const leftIrisOffsetX = (leftIris.x - landmarks[33].x) / leftEyeWidth - 0.5; const rightIrisOffsetX = (rightIris.x - landmarks[362].x) / rightEyeWidth - 0.5; const sharedIrisOffsetX = (leftIrisOffsetX + rightIrisOffsetX) / 2; const leftEyeDifference = leftIrisOffsetX - sharedIrisOffsetX; const rightEyeDifference = rightIrisOffsetX - sharedIrisOffsetX; const maxX = rect.width * 0.18 * state.motionIntensity; const maxY = rect.height * 0.16 * state.motionIntensity; const sharedTargetX = -sharedIrisOffsetX * rect.width * 1.15 * state.motionIntensity; const leftNaturalOffsetX = -leftEyeDifference * rect.width * 0.2 * state.motionIntensity; const rightNaturalOffsetX = -rightEyeDifference * rect.width * 0.2 * state.motionIntensity; const sharedTargetY = eyeLidDelta * rect.height * 120 * state.motionIntensity; state.eyes.left.eyeTarget.x = Math.max(-maxX, Math.min(maxX, sharedTargetX + leftNaturalOffsetX)); state.eyes.right.eyeTarget.x = Math.max(-maxX, Math.min(maxX, sharedTargetX + rightNaturalOffsetX)); state.eyes.left.eyeTarget.y = Math.max(-maxY, Math.min(maxY, sharedTargetY)); state.eyes.right.eyeTarget.y = Math.max(-maxY, Math.min(maxY, sharedTargetY)); }
+  if (!results.multiFaceLandmarks?.length) return;
+
+  const rect = stageRect();
+  const landmarks = results.multiFaceLandmarks[0];
+  const leftUpperEyelid = landmarks[159];
+  const leftLowerEyelid = landmarks[145];
+  const rightUpperEyelid = landmarks[386];
+  const rightLowerEyelid = landmarks[374];
+  const leftIris = landmarks[468];
+  const rightIris = landmarks[473];
+
+  // Keep the same baseline/sign convention as in the extension repo.
+  const leftEyeLidDistance = leftUpperEyelid.y - leftLowerEyelid.y;
+  const rightEyeLidDistance = rightUpperEyelid.y - rightLowerEyelid.y;
+  const currentEyeLidDistance = (leftEyeLidDistance + rightEyeLidDistance) / 2;
+
+  if (state.eye.baseEyeLidDistance === null) {
+    state.eye.baseEyeLidDistance = currentEyeLidDistance;
+  }
+
+  const eyeLidDelta = currentEyeLidDistance - state.eye.baseEyeLidDistance;
+  const leftEyeWidth = Math.max(0.0001, landmarks[133].x - landmarks[33].x);
+  const rightEyeWidth = Math.max(0.0001, landmarks[263].x - landmarks[362].x);
+  const leftIrisOffsetX = (leftIris.x - landmarks[33].x) / leftEyeWidth - 0.5;
+  const rightIrisOffsetX = (rightIris.x - landmarks[362].x) / rightEyeWidth - 0.5;
+  const irisOffsetX = -(leftIrisOffsetX + rightIrisOffsetX) / 2;
+
+  const rawTargetX = irisOffsetX * rect.width * 0.42 * state.motionIntensity;
+  const rawTargetY = eyeLidDelta * rect.height * 7.5 * state.motionIntensity;
+  const maxX = rect.width * 0.18 * state.motionIntensity;
+  const maxY = rect.height * 0.16 * state.motionIntensity;
+  const targetX = Math.max(-maxX, Math.min(maxX, rawTargetX));
+  const targetY = Math.max(-maxY, Math.min(maxY, rawTargetY));
+
+  EYES.forEach((eye) => {
+    state.eyes[eye].eyeTarget.x = targetX;
+    state.eyes[eye].eyeTarget.y = targetY;
+  });
+}
 
 function rerenderSelectedItem() { const item = selectedItem(); if (!item?.element) return; item.element.innerHTML = svgForItem(item); applyItemTransforms(state.activeEye, performance.now()); }
 function updateSelectedObject(prop, value) { const item = selectedItem(); if (item) { item[prop] = value; rerenderSelectedItem(); updateSelectionUi(); return; } const drawing = selectedDrawing(); if (!drawing) return; drawing[prop] = value; renderDrawings(state.activeEye); updateSelectionUi(); }
